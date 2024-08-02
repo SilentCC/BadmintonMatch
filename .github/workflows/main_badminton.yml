@@ -59,4 +59,4 @@ jobs:
           app-name: 'badminton'
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_7AC4252133CB4C59AB3AAD4D44E5A4A0 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_C4A8CF550B384503AC7155751AA24BA8 }}
