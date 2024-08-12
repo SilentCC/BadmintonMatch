@@ -10,5 +10,5 @@ COPY . .
 RUN npm install -g pnpm
 RUN pnpm install
 
-EXPOSE 3000
+EXPOSE 8181
 CMD [ "pnpm", "dx" ]
