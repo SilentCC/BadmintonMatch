@@ -76,7 +76,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: ghcr.io/${{ env.AZURE_WEBAPP_NAME }}:${{ github.sha }}
+          tags: ghcr.io/${{ env.REPO }}:${{ github.sha }}
           file: ./Dockerfile
 
   unit:
@@ -139,4 +139,4 @@ jobs:
         app-name: 'badminton'
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_1eed4438119b406f87adac4eaa23ed6c }}
-        images: 'ghcr.io/${{ env.AZURE_WEBAPP_NAME }}:${{ github.sha }}'
+        images: 'ghcr.io/${{ env.REPO }}:${{ github.sha }}'
