@@ -1,4 +1,6 @@
 name: Testing
+env:
+  AZURE_WEBAPP_NAME: badmintonmatch
 on: [push]
 jobs:
   e2e:
@@ -74,7 +76,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: ghcr.io/${{ secrets.AzureAppService_ContainerUsername_a31ea0eacc3749dab87bc7de765af073 }}/appsvc/staticsite:${{ github.sha }}
+          tags: ghcr.io/${{ env.AZURE_WEBAPP_NAME }}:${{ github.sha }}
           file: ./Dockerfile
 
   unit:
@@ -137,4 +139,4 @@ jobs:
         app-name: 'badminton'
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_1eed4438119b406f87adac4eaa23ed6c }}
-        images: 'ghcr.io/${{ secrets.AzureAppService_ContainerUsername_a31ea0eacc3749dab87bc7de765af073 }}/appsvc/staticsite:${{ github.sha }}'
+        images: 'ghcr.io/${{ env.AZURE_WEBAPP_NAME }}:${{ github.sha }}'
