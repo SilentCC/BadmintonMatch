@@ -1,8 +1,6 @@
-'user server'
-
 import { signIn } from "~/auth"
 
-export function SignIn() {
+export async function SignIn() {
   return (
     <form
       action={async (formData) => {

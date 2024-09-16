@@ -1,5 +1,3 @@
-'use client'
-
 import { trpc } from '../utils/trpc';
 import type { NextPageWithLayout } from './layout';
 import type { inferProcedureInput } from '@trpc/server';
