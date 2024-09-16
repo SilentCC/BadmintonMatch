@@ -4,6 +4,7 @@ import type { inferProcedureInput } from '@trpc/server';
 import Link from 'next/link';
 import { Fragment } from 'react';
 import type { AppRouter } from '~/server/routers/_app';
+import { UserButton } from '../components/user-botton'
 
 const IndexPage: NextPageWithLayout = () => {
   const utils = trpc.useUtils();
@@ -57,6 +58,8 @@ const IndexPage: NextPageWithLayout = () => {
         .
       </p>
 
+      <UserButton />
+
       <div className="flex flex-col py-8 items-start gap-y-2">
         <div className="flex flex-col"></div>
         <h2 className="text-3xl font-semibold">
@@ -77,7 +80,7 @@ const IndexPage: NextPageWithLayout = () => {
         </button>
 
         {postsQuery.data?.pages.map((page, index) => (
-          <Fragment key={page.items[0]?.id || index}>
+          <Fragment key={page.items[0]?.id ?? index}>
             {page.items.map((item) => (
               <article key={item.id}>
                 <h3 className="text-2xl font-semibold">{item.title}</h3>
