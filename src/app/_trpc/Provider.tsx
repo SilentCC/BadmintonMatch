@@ -2,7 +2,8 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink } from "@trpc/client";
-import React, { useState } from "react";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import React, { useState, } from "react";
 import superjson from 'superjson';
 
 import { trpc } from "./client";

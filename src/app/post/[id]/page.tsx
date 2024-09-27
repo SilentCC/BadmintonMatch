@@ -1,10 +1,12 @@
+"use client"
+
 import NextError from 'next/error';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { useParams } from 'next/navigation';
 
-import type { NextPageWithLayout } from '~/pages/_app';
-import type { RouterOutput } from '~/utils/trpc';
-import { trpc } from '~/utils/trpc';
+import type { RouterOutput } from '../../../utils/trpc';
+import { trpc } from '../../_trpc/client';
+import React from 'react';
 
 type PostByIdOutput = RouterOutput['post']['byId'];
 
@@ -30,8 +32,9 @@ function PostItem(props: { post: PostByIdOutput }) {
   );
 }
 
-const PostViewPage: NextPageWithLayout = () => {
-  const id = useRouter().query.id as string;
+export default function PostViewPage ()
+{
+  const { id } = useParams();
   const postQuery = trpc.post.byId.useQuery({ id });
 
   if (postQuery.error) {
@@ -55,6 +58,4 @@ const PostViewPage: NextPageWithLayout = () => {
   }
   const { data } = postQuery;
   return <PostItem post={data} />;
-};
-
-export default PostViewPage;
+}

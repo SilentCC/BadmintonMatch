@@ -1,3 +1,5 @@
+"use server"
+
 import NextAuth from 'next-auth';
 import { ZodError } from 'zod';
 import  bcrypt  from 'bcrypt';

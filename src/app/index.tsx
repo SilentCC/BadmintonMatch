@@ -1,13 +1,14 @@
+"use client"
+
 import type { inferProcedureInput } from '@trpc/server';
 import Link from 'next/link';
 import { Fragment } from 'react';
 import type { AppRouter } from '~/server/routers/_app';
-import { UserButton } from '../components/user-botton'
 import { trpc } from "./_trpc/client";
+import { UserButton } from '~/components/user-botton';
 
 export default function Page() {
 
-    const utils = trpc.useUtils();
     const postsQuery = trpc.post.list.useInfiniteQuery(
         {
             limit: 5,
@@ -21,7 +22,7 @@ export default function Page() {
 
     const addPost = trpc.post.add.useMutation({
         async onSuccess() {
-            await utils.post.list.invalidate();
+            console.log('Post added');
         }
     });
 

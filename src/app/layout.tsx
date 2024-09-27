@@ -1,13 +1,7 @@
-'use client'
-
-import type { NextPage } from 'next';
-import type { AppType, AppProps } from 'next/app';
-import type { ReactElement, ReactNode } from 'react';
 import type { Metadata } from 'next';
 
-import { DefaultLayout } from '~/components/DefaultLayout';
-import { trpc } from '~/utils/trpc';
 import '~/styles/globals.css';
+import Provider from './_trpc/Provider'
 
 export const metadata: Metadata = {
     title: 'Home',
@@ -21,7 +15,9 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en">
-            <body>{children}</body>
+           <body>
+               <Provider>{children}</Provider>
+           </body>
         </html>
     )
 }

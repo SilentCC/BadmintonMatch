@@ -10,9 +10,8 @@
 
 import { initTRPC } from '@trpc/server';
 import { transformer } from '~/utils/transformer';
-import type { Context } from './context';
 
-const t = initTRPC.context<Context>().create({
+const t = initTRPC.create({
   /**
    * @link https://trpc.io/docs/v11/data-transformers
    */
