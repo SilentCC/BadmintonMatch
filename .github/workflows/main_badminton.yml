@@ -54,14 +54,6 @@ jobs:
       - name: Check types
         run: pnpm tsc
 
-      - name: Upload test results
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: test results
-          path: |
-            playwright/test-results
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
