@@ -34,7 +34,8 @@ function PostItem(props: { post: PostByIdOutput }) {
 
 export default function PostViewPage ()
 {
-  const { id } = useParams();
+  const params = useParams<{id: string}>();
+  const id = params?.id ?? '';
   const postQuery = trpc.post.byId.useQuery({ id });
 
   if (postQuery.error) {
