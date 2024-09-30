@@ -1,6 +1,4 @@
-'user server'
-
-import { signIn } from "~/auth"
+import { signIn } from "../auth"
 
 export function SignIn() {
   return (
