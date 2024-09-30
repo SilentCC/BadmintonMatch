@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Header from '~/components/header';
 
 import '~/styles/globals.css';
 import Provider from './_trpc/Provider'
@@ -16,6 +17,7 @@ export default function RootLayout({
     return (
         <html lang="en">
            <body>
+               <Header />
                <Provider>{children}</Provider>
            </body>
         </html>

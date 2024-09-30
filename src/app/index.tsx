@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { Fragment } from 'react';
 import type { AppRouter } from '~/server/routers/_app';
 import { trpc } from "./_trpc/client";
-import { UserButton } from '~/components/user-botton';
 
 export default function Page() {
 
@@ -57,8 +56,6 @@ export default function Page() {
                 </Link>
                 .
             </p>
-
-            <UserButton />
 
             <div className="flex flex-col py-8 items-start gap-y-2">
                 <div className="flex flex-col"></div>
