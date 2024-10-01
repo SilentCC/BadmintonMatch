@@ -1,7 +1,7 @@
 FROM node:18.20.4-alpine
 
 # Create app directory
-WORKDIR /app
+WORKDIR /application
 
 # Bundle app source
 COPY . .
