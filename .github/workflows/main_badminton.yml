@@ -125,7 +125,7 @@ jobs:
     environment:
       name: 'production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
     - name: Lowercase the repo name and username
       run: echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
