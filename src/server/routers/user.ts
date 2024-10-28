@@ -3,6 +3,7 @@ import type { Prisma } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { prisma } from '~/server/prisma';
+import bcrypt from 'bcrypt';
 
 const defaultUserSelect = {
     id: true,
@@ -70,4 +71,19 @@ export const userRouter = router({
         }
         return user;
       }),
+    add: publicProcedure
+      .input(
+         z.object({
+            name: z.string(),
+            password: z.string(),
+         })
+      )
+      .mutation(async ({ input }) => {
+      input.password = bcrypt.hashSync(input.password, 10);
+      const user = await prisma.user.create({
+        data: input,
+        select: defaultUserSelect,
+      });
+      return user;
+    }),
 })
