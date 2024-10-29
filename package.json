@@ -31,6 +31,7 @@
     "singleQuote": true
   },
   "dependencies": {
+    "@auth/core": "^0.37.2",
     "@auth/prisma-adapter": "^2.4.2",
     "@headlessui/react": "^2.1.8",
     "@heroicons/react": "^2.1.5",
