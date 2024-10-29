@@ -3,7 +3,6 @@ import { signIn } from '~/auth';
 import AlertDialog from '~/components/AlertDialog';
 import { AuthError } from '@auth/core/errors';
 import { isRedirectError } from 'next/dist/client/components/redirect';
-import { error } from 'console';
 
 export default function SignIn({ searchParams }: { searchParams: any }) {
   const errorMessage = searchParams.error || null;
@@ -89,7 +88,7 @@ export default function SignIn({ searchParams }: { searchParams: any }) {
         </label>
         <div className="stats shadow w-full">
           <div className="stat place-items-center">
-            <div className="stat-title">Don't have an account?</div>
+            <div className="stat-title">Don&#39;t have an account?</div>
             <div className="stat-title">
               <a href="/register">Sign Up</a>
             </div>

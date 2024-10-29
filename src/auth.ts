@@ -32,7 +32,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           throw new Error('No user found');
         }
 
-        const check = bcrypt.compareSync(password, user?.password || '');
+        const check = bcrypt.compareSync(password, user?.password ?? '');
 
         if (!check) {
           throw new Error('password is not correct');

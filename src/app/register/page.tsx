@@ -6,8 +6,6 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { trpc } from '~/app/_trpc/client';
-import { router } from '~/server/trpc';
-import bcrypt from 'bcryptjs';
 
 const registerSchema = z
   .object({
@@ -25,17 +23,19 @@ const registerSchema = z
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 const RegisterPage = () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const {
     register,
     handleSubmit,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     formState: { errors },
-    reset,
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { mutateAsync: registerUser, isPending } = trpc.user.add.useMutation({
     onSuccess: (data) => {
       console.log(data.name);
@@ -51,7 +51,7 @@ const RegisterPage = () => {
     setError(null);
 
     try {
-        let { name, password } = data;
+        const { name, password } = data;
       await registerUser({ name, password });
     } catch (error) {
       console.log(error);

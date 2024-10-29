@@ -1,39 +1,23 @@
 'use client';
 
-import type { inferProcedureInput } from '@trpc/server';
-import Link from 'next/link';
-import { Fragment } from 'react';
-import type { AppRouter } from '~/server/routers/_app';
-import { trpc } from './_trpc/client';
-import {
-  Disclosure,
-  DisclosureButton,
-  DisclosurePanel,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuItems,
-} from '@headlessui/react';
-import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline';
-
 export default function Page() {
 
-  const postsQuery = trpc.post.list.useInfiniteQuery(
-    {
-      limit: 5,
-    },
-    {
-      getNextPageParam(lastPage) {
-        return lastPage.nextCursor;
-      },
-    },
-  );
+  // const postsQuery = trpc.post.list.useInfiniteQuery(
+  //   {
+  //     limit: 5,
+  //   },
+  //   {
+  //     getNextPageParam(lastPage) {
+  //       return lastPage.nextCursor;
+  //     },
+  //   },
+  // );
 
-  const addPost = trpc.post.add.useMutation({
-    async onSuccess() {
-      console.log('Post added');
-    },
-  });
+  // const addPost = trpc.post.add.useMutation({
+  //   async onSuccess() {
+  //     console.log('Post added');
+  //   },
+  // });
 
   // prefetch all posts for instant navigation
   // useEffect(() => {

@@ -1,7 +1,5 @@
-import { use } from 'react';
 import { auth } from '~/auth';
 import SignInButton from './SignInButton';
-import { getSession } from 'next-auth/react';
 
 export default async function UserAvatar() {
 
