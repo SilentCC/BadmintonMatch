@@ -1,11 +1,21 @@
-import UserButton from "./user-button"
+import  UserAvatar from './UserAvatar'
 
 export default function Header() {
   return (
-    <header className="sticky flex justify-center border-b">
-      <div className="mx-auto flex h-16 w-full max-w-3xl items-center justify-between px-4 sm:px-6">
-        <UserButton />
+    <div className="navbar bg-base-100">
+      <div className="flex-1">
+        <a className="btn btn-ghost text-xl">daisyUI</a>
       </div>
-    </header>
-  )
+      <div className="flex-none gap-2">
+        <div className="form-control">
+          <input
+            type="text"
+            placeholder="Search"
+            className="input input-bordered w-24 md:w-auto"
+          />
+        </div>
+      </div>
+      <UserAvatar/>
+    </div>
+  );
 }

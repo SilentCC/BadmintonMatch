@@ -1,160 +1,192 @@
-"use client"
-
-import type { inferProcedureInput } from '@trpc/server';
-import Link from 'next/link';
-import { Fragment } from 'react';
-import type { AppRouter } from '~/server/routers/_app';
-import { trpc } from "./_trpc/client";
+'use client';
 
 export default function Page() {
 
-    const postsQuery = trpc.post.list.useInfiniteQuery(
-        {
-            limit: 5,
-        },
-        {
-            getNextPageParam(lastPage) {
-                return lastPage.nextCursor;
-            },
-        }
-    );
+  // const postsQuery = trpc.post.list.useInfiniteQuery(
+  //   {
+  //     limit: 5,
+  //   },
+  //   {
+  //     getNextPageParam(lastPage) {
+  //       return lastPage.nextCursor;
+  //     },
+  //   },
+  // );
 
-    const addPost = trpc.post.add.useMutation({
-        async onSuccess() {
-            console.log('Post added');
-        }
-    });
+  // const addPost = trpc.post.add.useMutation({
+  //   async onSuccess() {
+  //     console.log('Post added');
+  //   },
+  // });
 
-    // prefetch all posts for instant navigation
-    // useEffect(() => {
-    //   const allPosts = postsQuery.data?.pages.flatMap((page) => page.items) ?? [];
-    //   for (const { id } of allPosts) {
-    //     void utils.post.byId.prefetch({ id });
-    //   }
-    // }, [postsQuery.data, utils]);
+  // prefetch all posts for instant navigation
+  // useEffect(() => {
+  //   const allPosts = postsQuery.data?.pages.flatMap((page) => page.items) ?? [];
+  //   for (const { id } of allPosts) {
+  //     void utils.post.byId.prefetch({ id });
+  //   }
+  // }, [postsQuery.data, utils]);
 
-    return (
-        <div className="flex flex-col bg-gray-800 py-8">
-            <h1 className="text-4xl font-bold">
-                Welcome to your tRPC with Prisma starter!
-            </h1>
-            <p className="text-gray-400">
-                If you get stuck, check{' '}
-                <Link className="underline" href="https://trpc.io">
-                    the docs
-                </Link>
-                , write a message in our{' '}
-                <Link className="underline" href="https://trpc.io/discord">
-                    Discord-channel
-                </Link>
-                , or write a message in{' '}
-                <Link
-                    className="underline"
-                    href="https://github.com/trpc/trpc/discussions"
-                >
-                    GitHub Discussions
-                </Link>
-                .
-            </p>
-
-            <div className="flex flex-col py-8 items-start gap-y-2">
-                <div className="flex flex-col"></div>
-                <h2 className="text-3xl font-semibold">
-                    Latest Posts
-                    {postsQuery.status === 'pending' && '(loading)'}
-                </h2>
-
-                <button
-                    className="bg-gray-900 p-2 rounded-md font-semibold disabled:bg-gray-700 disabled:text-gray-400"
-                    onClick={() => postsQuery.fetchNextPage()}
-                    disabled={!postsQuery.hasNextPage || postsQuery.isFetchingNextPage}
-                >
-                    {postsQuery.isFetchingNextPage
-                        ? 'Loading more...'
-                        : postsQuery.hasNextPage
-                            ? 'Load More'
-                            : 'Nothing more to load'}
-                </button>
-
-                {postsQuery.data?.pages.map((page, index) => (
-                    <Fragment key={page.items[0]?.id ?? index}>
-                        {page.items.map((item) => (
-                            <article key={item.id}>
-                                <h3 className="text-2xl font-semibold">{item.title}</h3>
-                                <Link className="text-gray-400" href={`/post/${item.id}`}>
-                                    View more
-                                </Link>
-                            </article>
-                        ))}
-                    </Fragment>
-                ))}
+  return (
+    <div className="overflow-x-auto">
+  <table className="table">
+    {/* head */}
+    <thead>
+      <tr>
+        <th>
+          <label>
+            <input type="checkbox" className="checkbox" />
+          </label>
+        </th>
+        <th>Name</th>
+        <th>Job</th>
+        <th>Favorite Color</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {/* row 1 */}
+      <tr>
+        <th>
+          <label>
+            <input type="checkbox" className="checkbox" />
+          </label>
+        </th>
+        <td>
+          <div className="flex items-center gap-3">
+            <div className="avatar">
+              <div className="mask mask-squircle h-12 w-12">
+                <img
+                  src="https://img.daisyui.com/images/profile/demo/2@94.webp"
+                  alt="Avatar Tailwind CSS Component" />
+              </div>
             </div>
-
-            <hr />
-
-            <div className="flex flex-col py-8 items-center">
-                <h2 className="text-3xl font-semibold pb-2">Add a Post</h2>
-
-                <form
-                    className="py-2 w-4/6"
-                    onSubmit={async (e) => {
-                        /**
-                         * In a real app you probably don't want to use this manually
-                         * Checkout React Hook Form - it works great with tRPC
-                         * @link https://react-hook-form.com/
-                         * @link https://kitchen-sink.trpc.io/react-hook-form
-                         */
-                        e.preventDefault();
-                        const $form = e.currentTarget;
-                        const values = Object.fromEntries(new FormData($form));
-                        type Input = inferProcedureInput<AppRouter['post']['add']>;
-                        //    ^?
-                        const input: Input = {
-                            title: values.title as string,
-                            text: values.text as string,
-                        };
-                        try {
-                            await addPost.mutateAsync(input);
-
-                            $form.reset();
-                        } catch (cause) {
-                            console.error({ cause }, 'Failed to add post');
-                        }
-                    }}
-                >
-                    <div className="flex flex-col gap-y-4 font-semibold">
-                        <input
-                            className="focus-visible:outline-dashed outline-offset-4 outline-2 outline-gray-700 rounded-xl px-4 py-3 bg-gray-900"
-                            id="title"
-                            name="title"
-                            type="text"
-                            placeholder="Title"
-                            disabled={addPost.isPending}
-                        />
-                        <textarea
-                            className="resize-none focus-visible:outline-dashed outline-offset-4 outline-2 outline-gray-700 rounded-xl px-4 py-3 bg-gray-900"
-                            id="text"
-                            name="text"
-                            placeholder="Text"
-                            disabled={addPost.isPending}
-                            rows={6}
-                        />
-
-                        <div className="flex justify-center">
-                            <input
-                                className="cursor-pointer bg-gray-900 p-2 rounded-md px-16"
-                                type="submit"
-                                disabled={addPost.isPending}
-                            />
-                            {addPost.error && (
-                                <p style={{ color: 'red' }}>{addPost.error.message}</p>
-                            )}
-                        </div>
-                    </div>
-                </form>
+            <div>
+              <div className="font-bold">Hart Hagerty</div>
+              <div className="text-sm opacity-50">United States</div>
             </div>
-        </div>
-    );
+          </div>
+        </td>
+        <td>
+          Zemlak, Daniel and Leannon
+          <br />
+          <span className="badge badge-ghost badge-sm">Desktop Support Technician</span>
+        </td>
+        <td>Purple</td>
+        <th>
+          <button className="btn btn-ghost btn-xs">details</button>
+        </th>
+      </tr>
+      {/* row 2 */}
+      <tr>
+        <th>
+          <label>
+            <input type="checkbox" className="checkbox" />
+          </label>
+        </th>
+        <td>
+          <div className="flex items-center gap-3">
+            <div className="avatar">
+              <div className="mask mask-squircle h-12 w-12">
+                <img
+                  src="https://img.daisyui.com/images/profile/demo/3@94.webp"
+                  alt="Avatar Tailwind CSS Component" />
+              </div>
+            </div>
+            <div>
+              <div className="font-bold">Brice Swyre</div>
+              <div className="text-sm opacity-50">China</div>
+            </div>
+          </div>
+        </td>
+        <td>
+          Carroll Group
+          <br />
+          <span className="badge badge-ghost badge-sm">Tax Accountant</span>
+        </td>
+        <td>Red</td>
+        <th>
+          <button className="btn btn-ghost btn-xs">details</button>
+        </th>
+      </tr>
+      {/* row 3 */}
+      <tr>
+        <th>
+          <label>
+            <input type="checkbox" className="checkbox" />
+          </label>
+        </th>
+        <td>
+          <div className="flex items-center gap-3">
+            <div className="avatar">
+              <div className="mask mask-squircle h-12 w-12">
+                <img
+                  src="https://img.daisyui.com/images/profile/demo/4@94.webp"
+                  alt="Avatar Tailwind CSS Component" />
+              </div>
+            </div>
+            <div>
+              <div className="font-bold">Marjy Ferencz</div>
+              <div className="text-sm opacity-50">Russia</div>
+            </div>
+          </div>
+        </td>
+        <td>
+          Rowe-Schoen
+          <br />
+          <span className="badge badge-ghost badge-sm">Office Assistant I</span>
+        </td>
+        <td>Crimson</td>
+        <th>
+          <button className="btn btn-ghost btn-xs">details</button>
+        </th>
+      </tr>
+      {/* row 4 */}
+      <tr>
+        <th>
+          <label>
+            <input type="checkbox" className="checkbox" />
+          </label>
+        </th>
+        <td>
+          <div className="flex items-center gap-3">
+            <div className="avatar">
+              <div className="mask mask-squircle h-12 w-12">
+                <img
+                  src="https://img.daisyui.com/images/profile/demo/5@94.webp"
+                  alt="Avatar Tailwind CSS Component" />
+              </div>
+            </div>
+            <div>
+              <div className="font-bold">Yancy Tear</div>
+              <div className="text-sm opacity-50">Brazil</div>
+            </div>
+          </div>
+        </td>
+        <td>
+          Wyman-Ledner
+          <br />
+          <span className="badge badge-ghost badge-sm">Community Outreach Specialist</span>
+        </td>
+        <td>Indigo</td>
+        <th>
+          <button className="btn btn-ghost btn-xs">details</button>
+        </th>
+      </tr>
+    </tbody>
+    {/* foot */}
+    <tfoot>
+      <tr>
+        <th></th>
+        <th>Name</th>
+        <th>Job</th>
+        <th>Favorite Color</th>
+        <th></th>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+  );
 }
 
 /**
