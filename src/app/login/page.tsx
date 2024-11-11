@@ -3,11 +3,13 @@ import { signIn } from '~/auth';
 import AlertDialog from '~/components/AlertDialog';
 import { AuthError } from '@auth/core/errors';
 import { isRedirectError } from 'next/dist/client/components/redirect';
+import { AiFillGithub } from 'react-icons/ai';
+import { AiFillGoogleCircle } from 'react-icons/ai';
 
 export default function SignIn({ searchParams }: { searchParams: any }) {
   const errorMessage = searchParams.error || null;
   return (
-    <div>
+    <div className="flex flex-col items-center gap-4 max-w-md w-full p-4 mx-auto">
       <form
         className="flex flex-col items-center gap-4 max-w-md w-full p-4 mx-auto"
         action={async (formData) => {
@@ -20,9 +22,9 @@ export default function SignIn({ searchParams }: { searchParams: any }) {
               redirect: false,
             });
 
-            console.log("ok1");
+            console.log('ok1');
             console.log(result);
-            console.log("ok2");
+            console.log('ok2');
           } catch (error) {
             console.log(error);
             if (isRedirectError(error)) {
@@ -86,6 +88,46 @@ export default function SignIn({ searchParams }: { searchParams: any }) {
             name="password"
           />
         </label>
+        <button className="btn items-center gap-2 w-full" type="submit">
+          Login
+        </button>
+        </form>
+        <div className="flex items-center gap-4 max-w-md w-full p-4 mx-auto">
+          <form
+            action={async () => {
+              'use server';
+              await signIn('github');
+            }}
+          >
+            <button type="submit" className="btn w-full gap-2">
+              <AiFillGithub className="w-5 h-5" />
+              <span>GitHub</span>
+            </button>
+          </form>
+          <form
+            action={async () => {
+              'use server';
+              await signIn('google');
+            }}
+          >
+            <button type="submit" className="btn w-full gap-2">
+              <AiFillGoogleCircle className="w-5 h-5" />
+              <span>Google</span>
+            </button>
+          </form>
+          <form
+            action={async () => {
+              'use server';
+              await signIn('twitter');
+            }}
+          >
+            <button type="submit" className="btn w-full gap-2">
+              <AiFillGoogleCircle className="w-5 h-5" />
+              <span>Twitter</span>
+            </button>
+          </form>
+        </div>
+        <div className="flex items-center gap-4 max-w-md w-full p-4 mx-auto">
         <div className="stats shadow w-full">
           <div className="stat place-items-center">
             <div className="stat-title">Don&#39;t have an account?</div>
@@ -94,16 +136,8 @@ export default function SignIn({ searchParams }: { searchParams: any }) {
             </div>
           </div>
         </div>
-      </form>
+        </div>
       {errorMessage && <AlertDialog message={errorMessage} />}
-       <form
-      action={async () => {
-        "use server"
-        await signIn("github")
-      }}
-    >
-      <button type="submit">Signin with GitHub</button>
-    </form>
     </div>
   );
 }

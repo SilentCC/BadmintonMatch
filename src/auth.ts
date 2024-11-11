@@ -5,6 +5,8 @@ import Credentials from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from '~/server/prisma';
 import Github from "next-auth/providers/github";
+import Google from "next-auth/providers/google";
+import Twitter from "next-auth/providers/twitter";
 
 const signInSchema = z.object({
   name: z.string(),
@@ -15,6 +17,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
     Github,
+    Google,
+    Twitter,
     Credentials({
       credentials: {
         name: {},
@@ -47,5 +51,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   pages:{
     signIn: '/login',
   },
+  session: { strategy: 'jwt' },
   secret: process.env.NEXT_PUBLIC_SECRET,
 });

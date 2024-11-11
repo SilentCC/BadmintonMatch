@@ -1,17 +1,13 @@
-import { auth } from '~/auth';
+import { auth, signOut } from '~/auth';
 import SignInButton from './SignInButton';
 
 export default async function UserAvatar() {
+  const session = await auth();
+  console.log(session);
 
-  const session = await auth()
-  console.log(session)
-
-  if (session == null || !session)
-  {
-    console.log('no!')
-    return (
-        <SignInButton />
-    );
+  if (session == null || !session) {
+    console.log('no!');
+    return <SignInButton />;
   }
 
   return (
@@ -42,7 +38,14 @@ export default async function UserAvatar() {
           <a>Settings</a>
         </li>
         <li>
-          <a>Logout</a>
+          <form
+            action={async () => {
+              'use server';
+              await signOut();
+            }}
+          >
+          <button type="submit">Logout</button>
+          </form>
         </li>
       </ul>
     </div>
