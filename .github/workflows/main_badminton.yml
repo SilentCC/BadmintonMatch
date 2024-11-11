@@ -1,51 +1,140 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy container app to Azure Web App - badminton
-
-on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
-
+name: Testing
+env:
+  AZURE_WEBAPP_NAME: badmintonmatch
+on: [push]
 jobs:
-  build:
-    runs-on: 'ubuntu-latest'
-
+  e2e:
+    name: 'Build + E2E tests'
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_DATABASE: trpcdb
+          POSTGRES_USER: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+    env:
+      NODE_ENV: test
+      NEXTAUTH_SECRET: supersecret
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8.5.1
 
-    - name: Log in to registry
-      uses: docker/login-action@v2
-      with:
-        registry: https://ghcr.io/
-        username: ${{ secrets.AzureAppService_ContainerUsername_bf95f53809794661bdf77de076ab0579 }}
-        password: ${{ secrets.AzureAppService_ContainerPassword_22766bdf5aa949d8affab7e6848f7a39 }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+          cache: 'pnpm' # You can active this cache when your repo has a lockfile
 
-    - name: Build and push container image to registry
-      uses: docker/build-push-action@v3
-      with:
-        push: true
-        tags: ghcr.io/${{ secrets.AzureAppService_ContainerUsername_bf95f53809794661bdf77de076ab0579 }}/silentcc/badmintonmatch:${{ github.sha }}
-        file: ./Dockerfile
+      - name: Install deps (with cache)
+        run: pnpm install
+
+      - name: Install playwright
+        run: pnpm playwright install chromium
+
+      - name: Next.js cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-nextjs
+
+      - name: Setup Prisma
+        run: pnpm prebuild
+
+      - run: pnpm build
+      - run: pnpm test-e2e
+
+      - name: Check types
+        run: pnpm tsc
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to registry
+        uses: docker/login-action@v2
+        with:
+         registry: https://ghcr.io/
+         username: ${{ secrets.AzureAppService_ContainerUsername_bf95f53809794661bdf77de076ab0579 }}
+         password: ${{ secrets.AzureAppService_ContainerPassword_22766bdf5aa949d8affab7e6848f7a39 }}
+
+      - name: Lowercase the repo name and username
+        run: echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
+
+      - name: Build and push container image to registry
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: ghcr.io/${{ env.REPO }}:${{ github.sha }}
+          file: ./Dockerfile
+
+  unit:
+    name: 'Unit tests + typecheck'
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_DATABASE: trpcdb
+          POSTGRES_USER: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+    env:
+      NODE_ENV: test
+      NEXTAUTH_SECRET: supersecret
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8.5.1
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+          cache: 'pnpm' # You can active this cache when your repo has a lockfile
+
+      - name: Install deps (with cache)
+        run: pnpm install
+
+      - name: Next.js cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-nextjs
+
+      - name: Setup Prisma
+        run: pnpm prebuild
+
+      - run: pnpm test-unit
+      - run: pnpm tsc
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build
+    needs: e2e
     environment:
       name: 'production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
+    - name: Lowercase the repo name and username
+      run: echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
+
     - name: Deploy to Azure Web App
       id: deploy-to-webapp
       uses: azure/webapps-deploy@v2
       with:
         app-name: 'badminton'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_b071a951fbdf4c49b475a557e39f1355 }}
-        images: 'ghcr.io/${{ secrets.AzureAppService_ContainerUsername_bf95f53809794661bdf77de076ab0579 }}/silentcc/badmintonmatch:${{ github.sha }}'
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_1eed4438119b406f87adac4eaa23ed6c }}
+        images: 'ghcr.io/${{ env.REPO }}:${{ github.sha }}'
