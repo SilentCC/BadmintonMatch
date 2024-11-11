@@ -136,5 +136,5 @@ jobs:
       with:
         app-name: 'badminton'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_1eed4438119b406f87adac4eaa23ed6c }}
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_b071a951fbdf4c49b475a557e39f1355 }}
         images: 'ghcr.io/${{ env.REPO }}:${{ github.sha }}'
