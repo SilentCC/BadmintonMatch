@@ -16,9 +16,48 @@ const signInSchema = z.object({
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
-    Github,
-    Google,
-    Twitter,
+    Github({
+      clientId: process.env.GITHUB_ID!,
+      clientSecret: process.env.GITHUB_SECRET!,
+      profile(profile) {
+        return {
+          id: profile.id.toString(),
+          name: profile.name ?? profile.login,
+          email: profile.email,
+          image: profile.avatar_url,
+          provider: 'github',
+          providerId: profile.id.toString(),
+        };
+      },
+    }),
+    Google({
+      clientId: process.env.GOOGLE_ID!,
+      clientSecret: process.env.GOOGLE_SECRET!,
+      profile(profile) {
+        return {
+          id: profile.sub,
+          name: profile.name,
+          email: profile.email,
+          image: profile.picture,
+          provider: 'google',
+          providerId: profile.sub,
+        };
+      },
+    }),
+    Twitter({
+      clientId: process.env.TWITTER_ID!,
+      clientSecret: process.env.TWITTER_SECRET!,
+      profile(profile) {
+        return {
+          id: profile.id_str,
+          name: profile.name,
+          email: profile.email,
+          image: profile.profile_image_url_https,
+          provider: 'twitter',
+          providerId: profile.id_str,
+        };
+      },
+    }),
     Credentials({
       credentials: {
         name: {},
@@ -42,14 +81,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           throw new Error('password is not correct');
         }
 
-        console.log("ok111")
-
-        return user;
+        return {
+          ...user,
+          provider: 'credentials',
+          providerId: user.id,
+        };
       },
     }),
   ],
-  pages:{
-    signIn: '/login',
+  callbacks: {
+    async session({ session, user }) {
+      if (session?.user) {
+        session.user.id = user.id;
+        session.user.provider = user.provider;
+        session.user.providerId = user.providerId;
+      }
+      return session;
+    },
+  },
+  pages: {
+    signIn: '/auth/signin',
+    error: '/auth/error',
   },
   session: { strategy: 'jwt' },
   secret: process.env.NEXT_PUBLIC_SECRET,

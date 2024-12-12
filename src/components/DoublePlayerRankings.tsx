@@ -58,7 +58,6 @@ export function DoublePlayerRankings() {
                             <div className="mask mask-squircle h-12 w-12">
                               <img
                                 src={rank.partner.image ?? 'https://img.daisyui.com/images/profile/demo/3@94.webp'}
-                                alt={`${rank.partner.name}'s avatar`}
                               />
                             </div>
                           </div>
