@@ -29,7 +29,6 @@ model User {
   email         String?         @unique
   emailVerified DateTime?
   image         String?         // OAuth provider avatar URL
-  avatarUrl     String?         // Custom uploaded avatar URL
   provider      String?         // OAuth provider (google, github, twitter)
   providerId    String?         // OAuth provider's user ID
   accounts      Account[]

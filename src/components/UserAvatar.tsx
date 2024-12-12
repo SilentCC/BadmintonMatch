@@ -12,7 +12,7 @@ export default async function UserAvatar() {
 
   const { user } = session;
   const defaultAvatar = 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp';
-  const avatarUrl = user.avatarUrl ?? user.image ?? defaultAvatar;
+  const avatarUrl = user.image ?? defaultAvatar;
 
   return (
     <div className="dropdown dropdown-end">
@@ -23,7 +23,7 @@ export default async function UserAvatar() {
       >
         <div className="w-10 rounded-full">
           <img
-            alt={`${user.name || 'User'}'s avatar`}
+            alt={`${user.name ?? 'User'}'s avatar`}
             src={avatarUrl}
             className="object-cover w-full h-full"
           />
@@ -35,10 +35,7 @@ export default async function UserAvatar() {
       >
         <li>
           <a className="justify-between">
-            <span className="truncate">{user.name || user.email}</span>
-            {user.provider && (
-              <span className="badge badge-sm">{user.provider}</span>
-            )}
+            <span className="truncate">{user.name ?? user.email}</span>
           </a>
         </li>
         <li>

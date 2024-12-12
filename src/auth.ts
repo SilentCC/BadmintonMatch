@@ -93,8 +93,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, user }) {
       if (session?.user) {
         session.user.id = user.id;
-        session.user.provider = user.provider;
-        session.user.providerId = user.providerId;
+        session.user.image = user.image;
       }
       return session;
     },
