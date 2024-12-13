@@ -3,12 +3,14 @@ import SignInButton from './SignInButton';
 
 export default async function UserAvatar() {
   const session = await auth();
-  console.log(session);
 
-  if (session == null || !session) {
-    console.log('no!');
+  if (!session?.user) {
     return <SignInButton />;
   }
+
+  const { user } = session;
+  const defaultAvatar = 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp';
+  const avatarUrl = user.image ?? defaultAvatar;
 
   return (
     <div className="dropdown dropdown-end">
@@ -19,8 +21,9 @@ export default async function UserAvatar() {
       >
         <div className="w-10 rounded-full">
           <img
-            alt="Tailwind CSS Navbar component"
-            src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+            alt={`${user.name ?? 'User'}'s avatar`}
+            src={avatarUrl}
+            className="object-cover w-full h-full"
           />
         </div>
       </div>
@@ -30,12 +33,11 @@ export default async function UserAvatar() {
       >
         <li>
           <a className="justify-between">
-            Profile
-            <span className="badge">New</span>
+            <span className="truncate">{user.name ?? user.email}</span>
           </a>
         </li>
         <li>
-          <a>Settings</a>
+          <a href="/profile">Profile</a>
         </li>
         <li>
           <form
@@ -44,7 +46,7 @@ export default async function UserAvatar() {
               await signOut();
             }}
           >
-          <button type="submit">Logout</button>
+            <button type="submit" className="w-full text-left">Logout</button>
           </form>
         </li>
       </ul>

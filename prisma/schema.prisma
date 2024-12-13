@@ -23,19 +23,52 @@ model Post {
 }
 
 model User {
-  id            String          @id @default(cuid())
+  id            String           @id @default(cuid())
   name          String?         @unique
   password      String?
-  email         String?          @unique
+  email         String?         @unique
   emailVerified DateTime?
-  image         String?
+  image         String?         // OAuth provider avatar URL
+  provider      String?         // OAuth provider (google, github, twitter)
+  providerId    String?         // OAuth provider's user ID
   accounts      Account[]
   sessions      Session[]
-  // Optional for WebAuthn support
+  singleRanks   SingleRank[]
+  doubleRanks   DoubleRank[]    @relation("Player")
+  doubleRanksPartner DoubleRank[] @relation("Partner")
   Authenticator Authenticator[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([provider, providerId])
+}
+
+model SingleRank {
+  id        String   @id @default(cuid())
+  score     Int      @default(0)
+  rank      Int      @default(0)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([score])
+}
+
+model DoubleRank {
+  id          String   @id @default(cuid())
+  score       Int      @default(0)
+  rank        Int      @default(0)
+  playerId    String
+  partnerId   String
+  player      User     @relation("Player", fields: [playerId], references: [id])
+  partner     User     @relation("Partner", fields: [partnerId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([playerId, partnerId])
+  @@index([score])
 }
 
 model Account {
@@ -77,7 +110,6 @@ model VerificationToken {
   @@id([identifier, token])
 }
 
-// Optional for WebAuthn support
 model Authenticator {
   credentialID         String  @unique
   userId               String

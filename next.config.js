@@ -32,4 +32,12 @@ module.exports = getConfig({
   typescript: {
     ignoreBuildErrors: true,
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
+  },
+   images: {
+    domains: ['cs110032000d3024da4.blob.core.windows.net'], // Add the domain here
+  },
 });
