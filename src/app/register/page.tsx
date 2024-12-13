@@ -5,6 +5,7 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { uploadAvatarForNewUser } from '~/server/avatar';
 import { trpc } from '~/app/_trpc/client';
 import Image from 'next/image';
 
@@ -39,7 +40,7 @@ const RegisterPage = () => {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-  
+
   const {
     register,
     handleSubmit,
@@ -51,7 +52,6 @@ const RegisterPage = () => {
   const { mutateAsync: registerUser, isPending } = trpc.user.add.useMutation({
     onSuccess: (data) => {
       console.log(data.name);
-      router.push('/login');
     },
     onError: (error) => {
       setError(error.message || 'register failed');
@@ -85,12 +85,32 @@ const RegisterPage = () => {
   const onSubmit = async (data: RegisterFormData) => {
     setError(null);
     try {
-      await registerUser({
+      const result = await registerUser({
         name: data.name,
         password: data.password,
-        image: avatarPreview,
       });
+
+      // If avatar exists, upload it
+      if (avatarPreview && fileInputRef.current?.files?.[0]) {
+        // Convert file to base64
+        const file = fileInputRef.current.files[0];
+        const base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = (error) => reject(error);
+        });
+
+        const avatarResult = await uploadAvatarForNewUser(result.id, base64);
+        if (avatarResult.error) {
+          console.log(avatarResult.error);
+          throw new Error(avatarResult.error);
+        }
+      }
+
+      router.push('/login');
     } catch (err) {
+      console.log(err);
       console.error(err);
       setError('Failed to register');
     }
