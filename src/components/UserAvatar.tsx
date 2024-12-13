@@ -4,6 +4,8 @@ import SignInButton from './SignInButton';
 export default async function UserAvatar() {
   const session = await auth();
 
+  console.log(session?.user);
+
   if (!session?.user) {
     return <SignInButton />;
   }

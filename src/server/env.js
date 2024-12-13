@@ -12,7 +12,6 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']),
 });
 
-console.log(process.env);
 const env = envSchema.safeParse(process.env);
 
 if (!env.success) {
