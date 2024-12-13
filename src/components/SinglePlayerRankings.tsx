@@ -1,27 +1,29 @@
-'use client';
+'use server';
 
-import { trpc } from '~/utils/trpc';
+import { prisma } from '~/server/prisma';
 
-export function SinglePlayerRankings() {
-  const singleRankQuery = trpc.rank.listSingle.useInfiniteQuery(
-    {
-      limit: 10,
+export async function SinglePlayerRankings() {
+  const ranks = await prisma.singleRank.findMany({
+    take: 10,
+    orderBy: { rank: 'asc' },
+    include: {
+      user: true,
     },
-    {
-      getNextPageParam(lastPage) {
-        return lastPage.nextCursor;
-      },
-    },
-  );
+  });
 
   return (
-    <div className="card bg-base-200 shadow-xl">
+    <div className="card bg-base-100 shadow-xl">
       <div className="card-body">
-        <h2 className="card-title text-2xl font-bold mb-4">Single Player Rankings</h2>
+        <h2 className="card-title text-3xl font-bold text-primary mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="w-8 h-8 stroke-current mr-2">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+          </svg>
+          Single Player Rankings
+        </h2>
         <div className="overflow-x-auto">
-          <table className="table table-zebra">
+          <table className="table table-zebra table-pin-rows">
             <thead>
-              <tr>
+              <tr className="text-base text-base-content">
                 <th>Rank</th>
                 <th>Player</th>
                 <th>Score</th>
@@ -29,47 +31,42 @@ export function SinglePlayerRankings() {
               </tr>
             </thead>
             <tbody>
-              {singleRankQuery.data?.pages.flatMap((page) =>
-                page.items.map((rank) => (
-                  <tr key={rank.id}>
-                    <td>
-                      <div className="badge badge-primary">{rank.rank}</div>
-                    </td>
-                    <td>
-                      <div className="flex items-center gap-3">
-                        <div className="avatar">
-                          <div className="mask mask-squircle h-12 w-12">
-                            <img
-                              src={rank.user.image ?? 'https://img.daisyui.com/images/profile/demo/2@94.webp'}
-                              alt={`${rank.user.name}'s avatar`}
-                            />
-                          </div>
-                        </div>
-                        <div>
-                          <div className="font-bold">{rank.user.name}</div>
+              {ranks.map((rank, index) => (
+                <tr key={rank.id} className="hover:bg-base-200 transition-colors">
+                  <td>
+                    <div className={`badge ${
+                      index === 0 ? 'badge-primary' : 
+                      index === 1 ? 'badge-secondary' : 
+                      index === 2 ? 'badge-accent' : 
+                      'badge-ghost'
+                    } badge-lg`}>
+                      {rank.rank}
+                    </div>
+                  </td>
+                  <td>
+                    <div className="flex items-center space-x-4">
+                      <div className="avatar">
+                        <div className="mask mask-squircle w-12 h-12">
+                          <img 
+                            src={rank.user.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'} 
+                            alt={`${rank.user.name}'s avatar`} 
+                            className="object-cover"
+                          />
                         </div>
                       </div>
-                    </td>
-                    <td>
-                      <div className="badge badge-accent badge-lg">{rank.score}</div>
-                    </td>
-                    <td>{new Date(rank.updatedAt).toLocaleDateString()}</td>
-                  </tr>
-                ))
-              )}
+                      <div>
+                        <div className="font-bold text-base">{rank.user.name}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div className="badge badge-outline badge-lg text-base-content">{rank.score}</div>
+                  </td>
+                  <td className="text-base-content/70">{new Date(rank.updatedAt).toLocaleDateString()}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
-          {singleRankQuery.hasNextPage && (
-            <div className="flex justify-center mt-4">
-              <button
-                className="btn btn-primary"
-                onClick={() => singleRankQuery.fetchNextPage()}
-                disabled={singleRankQuery.isFetchingNextPage}
-              >
-                {singleRankQuery.isFetchingNextPage ? 'Loading...' : 'Load More'}
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </div>

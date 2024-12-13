@@ -1,5 +1,3 @@
-'use client';
-
 import { auth, signOut } from '~/auth';
 import SignInButton from './SignInButton';
 

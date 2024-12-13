@@ -44,20 +44,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         };
       },
     }),
-    Twitter({
-      clientId: process.env.TWITTER_ID!,
-      clientSecret: process.env.TWITTER_SECRET!,
-      profile(profile) {
-        return {
-          id: profile.id_str,
-          name: profile.name,
-          email: profile.email,
-          image: profile.profile_image_url_https,
-          provider: 'twitter',
-          providerId: profile.id_str,
-        };
-      },
-    }),
+    Twitter,
     Credentials({
       credentials: {
         name: {},
@@ -93,8 +80,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, user }) {
       if (session?.user) {
         session.user.id = user.id;
-        session.user.provider = user.provider;
-        session.user.providerId = user.providerId;
+        session.user.image = user.image;
       }
       return session;
     },

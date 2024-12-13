@@ -1,4 +1,3 @@
-'use client';
 
 import { SinglePlayerRankings } from '~/components/SinglePlayerRankings';
 import { DoublePlayerRankings } from '~/components/DoublePlayerRankings';
@@ -54,9 +53,9 @@ export default function Page() {
 //     router: appRouter,
 //     ctx: await createContext(),
 //   });
-//
+
 //   await ssg.post.all.fetch();
-//
+
 //   return {
 //     props: {
 //       trpcState: ssg.dehydrate(),

@@ -1,27 +1,30 @@
-'use client';
+'use server';
 
-import { trpc } from '~/utils/trpc';
+import { prisma } from '~/server/prisma';
 
-export function DoublePlayerRankings() {
-  const doubleRankQuery = trpc.rank.listDouble.useInfiniteQuery(
-    {
-      limit: 10,
+export async function DoublePlayerRankings() {
+  const ranks = await prisma.doubleRank.findMany({
+    take: 10,
+    orderBy: { rank: 'asc' },
+    include: {
+      player: true,
+      partner: true,
     },
-    {
-      getNextPageParam(lastPage) {
-        return lastPage.nextCursor;
-      },
-    },
-  );
+  });
 
   return (
-    <div className="card bg-base-200 shadow-xl">
+    <div className="card bg-base-100 shadow-xl">
       <div className="card-body">
-        <h2 className="card-title text-2xl font-bold mb-4">Double Player Rankings</h2>
+        <h2 className="card-title text-3xl font-bold text-primary mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="w-8 h-8 stroke-current mr-2">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+          </svg>
+          Double Player Rankings
+        </h2>
         <div className="overflow-x-auto">
-          <table className="table table-zebra">
+          <table className="table table-zebra table-pin-rows">
             <thead>
-              <tr>
+              <tr className="text-base text-base-content">
                 <th>Rank</th>
                 <th>Team</th>
                 <th>Score</th>
@@ -29,64 +32,61 @@ export function DoublePlayerRankings() {
               </tr>
             </thead>
             <tbody>
-              {doubleRankQuery.data?.pages.flatMap((page) =>
-                page.items.map((rank) => (
-                  <tr key={rank.id}>
-                    <td>
-                      <div className="badge badge-primary">{rank.rank}</div>
-                    </td>
-                    <td>
-                      <div className="flex items-center gap-6">
-                        {/* Player 1 */}
-                        <div className="flex items-center gap-3">
-                          <div className="avatar">
-                            <div className="mask mask-squircle h-12 w-12">
-                              <img
-                                src={rank.player.image ?? 'https://img.daisyui.com/images/profile/demo/2@94.webp'}
-                                alt={`${rank.player.name}'s avatar`}
-                              />
-                            </div>
-                          </div>
-                          <div>
-                            <div className="font-bold">{rank.player.name}</div>
+              {ranks.map((rank, index) => (
+                <tr key={rank.id} className="hover:bg-base-200 transition-colors">
+                  <td>
+                    <div className={`badge ${
+                      index === 0 ? 'badge-primary' : 
+                      index === 1 ? 'badge-secondary' : 
+                      index === 2 ? 'badge-accent' : 
+                      'badge-ghost'
+                    } badge-lg`}>
+                      {rank.rank}
+                    </div>
+                  </td>
+                  <td>
+                    <div className="flex items-center space-x-4">
+                      {/* Player 1 */}
+                      <div className="flex items-center space-x-3">
+                        <div className="avatar">
+                          <div className="mask mask-squircle w-12 h-12">
+                            <img 
+                              src={rank.player.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'} 
+                              alt={`${rank.player.name}'s avatar`} 
+                              className="object-cover"
+                            />
                           </div>
                         </div>
-                        <div className="font-bold text-lg">&</div>
-                        {/* Player 2 */}
-                        <div className="flex items-center gap-3">
-                          <div className="avatar">
-                            <div className="mask mask-squircle h-12 w-12">
-                              <img
-                                src={rank.partner.image ?? 'https://img.daisyui.com/images/profile/demo/3@94.webp'}
-                              />
-                            </div>
-                          </div>
-                          <div>
-                            <div className="font-bold">{rank.partner.name}</div>
-                          </div>
+                        <div>
+                          <div className="font-bold text-base">{rank.player.name}</div>
                         </div>
                       </div>
-                    </td>
-                    <td>
-                      <div className="badge badge-accent badge-lg">{rank.score}</div>
-                    </td>
-                    <td>{new Date(rank.updatedAt).toLocaleDateString()}</td>
-                  </tr>
-                ))
-              )}
+                      <div className="font-bold text-lg text-base-content/50">&</div>
+                      {/* Player 2 */}
+                      <div className="flex items-center space-x-3">
+                        <div className="avatar">
+                          <div className="mask mask-squircle w-12 h-12">
+                            <img 
+                              src={rank.partner.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'} 
+                              alt={`${rank.partner.name}'s avatar`} 
+                              className="object-cover"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <div className="font-bold text-base">{rank.partner.name}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div className="badge badge-outline badge-lg text-base-content">{rank.score}</div>
+                  </td>
+                  <td className="text-base-content/70">{new Date(rank.updatedAt).toLocaleDateString()}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
-          {doubleRankQuery.hasNextPage && (
-            <div className="flex justify-center mt-4">
-              <button
-                className="btn btn-primary"
-                onClick={() => doubleRankQuery.fetchNextPage()}
-                disabled={doubleRankQuery.isFetchingNextPage}
-              >
-                {doubleRankQuery.isFetchingNextPage ? 'Loading...' : 'Load More'}
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </div>
