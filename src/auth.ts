@@ -44,7 +44,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         };
       },
     }),
-    Twitter,
+    Twitter({
+      clientId: process.env.AUTH_TWITTER_ID!,
+      clientSecret: process.env.AUTH_TWITTER_SECRET!,
+      profile(profile) {
+        return {
+          id: profile.data.id,
+          name: profile.data.name,
+          email: profile.data.email ?? null,
+          image: profile.data.profile_image_url,
+          provider: 'twitter',
+          providerId: profile.data.id,
+        };
+      },
+    }),
     Credentials({
       credentials: {
         name: {},
