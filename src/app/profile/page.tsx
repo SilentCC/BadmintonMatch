@@ -3,6 +3,7 @@ import { auth } from '~/auth';
 import ProfileForm from './ProfileForm';
 
 import { prisma } from '~/server/prisma';
+
 export default async function ProfilePage() {
   const session = await auth();
 
@@ -16,7 +17,12 @@ export default async function ProfilePage() {
   });
 
   const doublePlayerRank = await prisma.doubleRank.findFirst({
-    where: { playerId: session.user.id },
+    where: {
+      OR: [
+        { partnership: { player1Id: session.user.id } },
+        { partnership: { player2Id: session.user.id } }
+      ]
+    },
     select: { rank: true, score: true }
   });
 

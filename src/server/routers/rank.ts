@@ -30,18 +30,22 @@ const defaultDoubleRankSelect = {
   id: true,
   score: true,
   rank: true,
-  playerId: true,
-  partnerId: true,
-  player: {
+  partnershipId: true,
+  partnership: {
     select: {
-      name: true,
-      image: true,
-    },
-  },
-  partner: {
-    select: {
-      name: true,
-      image: true,
+      player1: {
+        select: {
+          name: true,
+          image: true,
+        },
+      },
+      player2: {
+        select: {
+          name: true,
+          image: true,
+        },
+      },
+      nickname: true,
     },
   },
   createdAt: true,
@@ -201,7 +205,7 @@ export const rankRouter = router({
     )
     .mutation(async ({ input }) => {
       const { userId, score } = input;
-      
+
       // Find existing rank or create new one
       const existingRank = await prisma.singleRank.findFirst({
         where: { userId },
@@ -229,23 +233,15 @@ export const rankRouter = router({
   updateDoubleScore: publicProcedure
     .input(
       z.object({
-        playerId: z.string(),
-        partnerId: z.string(),
+        partnershipId: z.string(),
         score: z.number().min(0),
       }),
     )
     .mutation(async ({ input }) => {
-      const { playerId, partnerId, score } = input;
-      
-      // Find existing rank or create new one
+      const { partnershipId, score } = input;
+
       const existingRank = await prisma.doubleRank.findFirst({
-        where: {
-          OR: [
-            { playerId, partnerId },
-            { playerId: partnerId, partnerId: playerId },
-          ],
-        },
-        select: defaultDoubleRankSelect,
+        where: { partnershipId },
       });
 
       if (existingRank) {
@@ -258,8 +254,7 @@ export const rankRouter = router({
 
       return prisma.doubleRank.create({
         data: {
-          playerId,
-          partnerId,
+          partnershipId,
           score,
         },
         select: defaultDoubleRankSelect,

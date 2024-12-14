@@ -48,11 +48,12 @@ export default function SignIn({ searchParams }: { searchParams: any }) {
                     }
                   }
                 }
-              }
-              if (errorMessage) {
-                redirect(`/login?error=${encodeURIComponent(errorMessage)}`);
-              } else {
-                redirect(`/`);
+              } finally {
+                if (errorMessage) {
+                  redirect(`/login?error=${encodeURIComponent(errorMessage)}`);
+                } else {
+                  redirect(`/`);
+                }
               }
             }}
           >

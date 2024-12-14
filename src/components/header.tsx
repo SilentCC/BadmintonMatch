@@ -23,8 +23,8 @@ export default function Header() {
               </Link>
             </li>
             <li>
-              <Link href="/match" className="text-white hover:bg-slate-700">
-                Match
+              <Link href="/matches" className="text-white hover:bg-slate-700">
+                Matches
               </Link>
             </li>
           </ul>
@@ -44,8 +44,8 @@ export default function Header() {
             </Link>
           </li>
           <li>
-            <Link href="/match" className="text-white hover:bg-slate-700 rounded-lg">
-              Match
+            <Link href="/matches" className="text-white hover:bg-slate-700 rounded-lg">
+              Matches
             </Link>
           </li>
         </ul>

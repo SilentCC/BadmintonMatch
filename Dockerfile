@@ -11,4 +11,5 @@ RUN npm install -g pnpm
 RUN pnpm install
 
 EXPOSE 3000
-CMD [ "pnpm", "dx" ]
+CMD ["sh", "-c", "pnpm build && pnpm db-seed && pnpm start"]
+
