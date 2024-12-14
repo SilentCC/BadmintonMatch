@@ -153,15 +153,15 @@ export default async function MatchesPage() {
                   <div className="flex items-center space-x-4">
                     <div className="flex flex-col items-center">
                       <div className="font-semibold">
-                        {match.partnership1?.nickname || 
-                         `${match.partnership1?.player1.nickname || match.partnership1?.player1.name} & 
-                          ${match.partnership1?.player2.nickname || match.partnership1?.player2.name}`}
+                        {match.partnership1?.nickname ?? 
+                         `${match.partnership1?.player1.nickname ?? match.partnership1?.player1.name} & 
+                          ${match.partnership1?.player2.nickname ?? match.partnership1?.player2.name}`}
                       </div>
                       <div className="text-sm text-gray-500">vs</div>
                       <div className="font-semibold">
-                        {match.partnership2?.nickname || 
-                         `${match.partnership2?.player1.nickname || match.partnership2?.player1.name} & 
-                          ${match.partnership2?.player2.nickname || match.partnership2?.player2.name}`}
+                        {match.partnership2?.nickname ?? 
+                         `${match.partnership2?.player1.nickname ?? match.partnership2?.player1.name} & 
+                          ${match.partnership2?.player2.nickname ?? match.partnership2?.player2.name}`}
                       </div>
                     </div>
                   </div>
