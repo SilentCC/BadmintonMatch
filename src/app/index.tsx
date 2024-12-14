@@ -1,7 +1,3 @@
-
-import { SinglePlayerRankings } from '~/components/SinglePlayerRankings';
-import { DoublePlayerRankings } from '~/components/DoublePlayerRankings';
-
 export default function Page() {
 
   // const postsQuery = trpc.post.list.useInfiniteQuery(
@@ -32,8 +28,10 @@ export default function Page() {
   return (
     <div className="container mx-auto p-4">
       <div className="flex flex-col gap-8">
-        <SinglePlayerRankings />
-        <DoublePlayerRankings />
+        <h1 className="text-3xl font-bold text-center">Welcome to Badminton Match</h1>
+        <p className="text-center text-xl">
+          Explore rankings, matches, and connect with badminton players!
+        </p>
       </div>
     </div>
   );

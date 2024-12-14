@@ -58,7 +58,12 @@ export async function DoublePlayerRankings() {
                           </div>
                         </div>
                         <div>
-                          <div className="font-bold text-base">{rank.player.name}</div>
+                          <div className="font-bold text-base">{rank.player.nickname ?? rank.player.name}</div>
+                          {rank.player.nickname && (
+                            <div className="text-sm text-base-content/70">
+                              {rank.player.name}
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className="font-bold text-lg text-base-content/50">&</div>
@@ -74,7 +79,12 @@ export async function DoublePlayerRankings() {
                           </div>
                         </div>
                         <div>
-                          <div className="font-bold text-base">{rank.partner.name}</div>
+                          <div className="font-bold text-base">{rank.partner.nickname ?? rank.partner.name}</div>
+                          {rank.partner.nickname && (
+                            <div className="text-sm text-base-content/70">
+                              {rank.partner.name}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Header from '~/components/header';
+import { Toaster } from 'sonner';
 
 import '~/styles/globals.css';
 import Provider from './_trpc/Provider'
@@ -19,6 +20,11 @@ export default function RootLayout({
            <body>
                <Header />
                <Provider>{children}</Provider>
+               <Toaster 
+                 position="top-right" 
+                 richColors 
+                 closeButton 
+               />
            </body>
         </html>
     )

@@ -8,6 +8,24 @@ import Github from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 import Twitter from "next-auth/providers/twitter";
 
+declare module "next-auth" {
+  interface User {
+    nickname?: string | null;
+  }
+  
+  interface Session {
+    user: {
+      id: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+      nickname?: string | null;
+      emailVerified?: Date | null;
+      provider?: string | null;
+    }
+  }
+}
+
 const signInSchema = z.object({
   name: z.string(),
   password: z.string(),
@@ -44,7 +62,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         };
       },
     }),
-    Twitter,
+    Twitter({
+      clientId: process.env.AUTH_TWITTER_ID!,
+      clientSecret: process.env.AUTH_TWITTER_SECRET!,
+      profile(profile) {
+        return {
+          id: profile.data.id,
+          name: profile.data.name,
+          email: profile.data.email ?? null,
+          image: profile.data.profile_image_url,
+          provider: 'twitter',
+          providerId: profile.data.id,
+        };
+      },
+    }),
     Credentials({
       credentials: {
         name: {},
@@ -80,31 +111,51 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       console.log('Token in session callback:', token);
       
-      if (token) {
-        session.user = {
-          id: token.sub ?? "",
-          name: token.name,
-          email: token.email ?? "",
-          emailVerified: null,
-          image: token.picture,
-        };
-      } else {
-        console.error('No token found in session callback');
+      if (token.sub) {
+        try {
+          // Fetch the user to get the nickname
+          const user = await prisma.user.findUnique({
+            where: { id: token.sub },
+            select: { 
+              id: true, 
+              name: true, 
+              email: true, 
+              image: true,
+              nickname: true 
+            }
+          });
+
+          if (user) {
+            session.user = {
+              id: user.id,
+              name: user.name,
+              email: user.email ?? '',
+              image: user.image,
+              nickname: user.nickname,
+              emailVerified: null,
+              provider: typeof token.provider === 'string' ? token.provider : null
+            };
+          }
+        } catch (error) {
+          console.error('Error fetching user in session callback:', error);
+        }
       }
       
       return session;
     },
-    async jwt({ token, account, profile }) {
-      console.log('Incoming token:', token);
-      console.log('Incoming account:', account);
-      console.log('Incoming profile:', profile);
+    async jwt({ token, account, user }) {
+      // Persist the OAuth provider and ID to the token right after signin
+      if (account) {
+        token.provider = account.provider;
+        token.providerId = account.providerAccountId;
+      }
       
-      // Add additional user info from the profile during initial login
-      if (account && profile) {
-        token.id = profile.id ?? account.providerAccountId;
-        token.name = profile.name ?? "";
-        token.email = profile.email;
-        token.picture = profile.picture || profile.avatar_url;
+      // Add user info during initial login
+      if (user) {
+        token.id = user.id;
+        token.name = user.name;
+        token.email = user.email;
+        token.picture = user.image;      
       }
       
       return token;

@@ -29,24 +29,24 @@ export default async function UserAvatar() {
       </div>
       <ul
         tabIndex={0}
-        className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
+        className="menu dropdown-content z-[1] p-2 shadow bg-slate-800 rounded-box w-52 mt-3 text-white"
       >
-        <li>
-          <a className="justify-between">
-            <span className="truncate">{user.name ?? user.email}</span>
-          </a>
+        <li className="hover:bg-slate-700 rounded">
+          <div className="flex items-center justify-between">
+            <span className="truncate max-w-[120px]">{user.name ?? user.email}</span>
+          </div>
         </li>
-        <li>
-          <a href="/profile">Profile</a>
+        <li className="hover:bg-slate-700 rounded">
+          <a href="/profile" className="text-white">Profile</a>
         </li>
-        <li>
+        <li className="hover:bg-slate-700 rounded">
           <form
             action={async () => {
               'use server';
               await signOut();
             }}
           >
-            <button type="submit" className="w-full text-left">Logout</button>
+            <button type="submit" className="w-full text-left text-white">Logout</button>
           </form>
         </li>
       </ul>
