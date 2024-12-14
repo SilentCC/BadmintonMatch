@@ -59,11 +59,11 @@ export default function SignIn({ searchParams }: { searchParams: any }) {
             {/* Name Input */}
             <div className="form-control w-full">
               <label className="label">
-                <span className="label-text">Username</span>
+                <span className="label-text">Name</span>
               </label>
               <input
                 type="text"
-                placeholder="Enter your username"
+                placeholder="Enter your name"
                 className="input input-bordered w-full"
                 name="name"
               />

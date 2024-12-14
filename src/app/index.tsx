@@ -1,6 +1,3 @@
-import { SinglePlayerRankings } from '~/components/SinglePlayerRankings';
-import { DoublePlayerRankings } from '~/components/DoublePlayerRankings';
-
 export default function Page() {
 
   // const postsQuery = trpc.post.list.useInfiniteQuery(
