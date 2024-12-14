@@ -9,8 +9,7 @@ COPY . .
 # install pnpm and deps
 RUN npm install -g pnpm
 RUN pnpm install
-RUN pnpm build
-RUN pnpm db-seed 
 
 EXPOSE 3000
-CMD [ "pnpm", "start" ]
+CMD ["sh", "-c", "pnpm build && pnpm db-seed && pnpm start"]
+
