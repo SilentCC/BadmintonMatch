@@ -55,7 +55,7 @@ export async function SinglePlayerRankings() {
                         </div>
                       </div>
                       <div>
-                        <div className="font-bold text-base">{rank.user.nickname || rank.user.name}</div>
+                        <div className="font-bold text-base">{rank.user.nickname ?? rank.user.name}</div>
                         {rank.user.nickname && (
                           <div className="text-sm text-base-content/70">
                             {rank.user.name}

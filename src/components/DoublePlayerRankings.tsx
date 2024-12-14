@@ -7,8 +7,12 @@ export async function DoublePlayerRankings() {
     take: 10,
     orderBy: { rank: 'asc' },
     include: {
-      player: true,
-      partner: true,
+      partnership: {
+        include: {
+          player1: true,
+          player2: true,
+        },
+      },
     },
   });
 
@@ -46,46 +50,64 @@ export async function DoublePlayerRankings() {
                   </td>
                   <td>
                     <div className="flex items-center space-x-4">
-                      {/* Player 1 */}
-                      <div className="flex items-center space-x-3">
-                        <div className="avatar">
-                          <div className="mask mask-squircle w-12 h-12">
-                            <img 
-                              src={rank.player.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'} 
-                              alt={`${rank.player.name}'s avatar`} 
-                              className="object-cover"
-                            />
-                          </div>
-                        </div>
-                        <div>
-                          <div className="font-bold text-base">{rank.player.nickname ?? rank.player.name}</div>
-                          {rank.player.nickname && (
-                            <div className="text-sm text-base-content/70">
-                              {rank.player.name}
+                      {/* Partnership Nickname */}
+                      <div className="flex flex-col">
+                        {rank.partnership.nickname ? (
+                          <>
+                            <div className="font-bold text-lg text-primary">
+                              {rank.partnership.nickname}
                             </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="font-bold text-lg text-base-content/50">&</div>
-                      {/* Player 2 */}
-                      <div className="flex items-center space-x-3">
-                        <div className="avatar">
-                          <div className="mask mask-squircle w-12 h-12">
-                            <img 
-                              src={rank.partner.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'} 
-                              alt={`${rank.partner.name}'s avatar`} 
-                              className="object-cover"
-                            />
-                          </div>
-                        </div>
-                        <div>
-                          <div className="font-bold text-base">{rank.partner.nickname ?? rank.partner.name}</div>
-                          {rank.partner.nickname && (
                             <div className="text-sm text-base-content/70">
-                              {rank.partner.name}
+                              {rank.partnership.player1.nickname ?? rank.partnership.player1.name} 
+                              {' & '}
+                              {rank.partnership.player2.nickname ?? rank.partnership.player2.name}
                             </div>
-                          )}
-                        </div>
+                          </>
+                        ) : (
+                          <div className="flex items-center space-x-4">
+                            {/* Player 1 */}
+                            <div className="flex items-center space-x-3">
+                              <div className="avatar">
+                                <div className="mask mask-squircle w-12 h-12">
+                                  <img 
+                                    src={rank.partnership.player1.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'} 
+                                    alt={`${rank.partnership.player1.name}'s avatar`} 
+                                    className="object-cover"
+                                  />
+                                </div>
+                              </div>
+                              <div>
+                                <div className="font-bold text-base">{rank.partnership.player1.nickname ?? rank.partnership.player1.name}</div>
+                                {rank.partnership.player1.nickname && (
+                                  <div className="text-sm text-base-content/70">
+                                    {rank.partnership.player1.name}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <div className="font-bold text-lg text-base-content/50">&</div>
+                            {/* Player 2 */}
+                            <div className="flex items-center space-x-3">
+                              <div className="avatar">
+                                <div className="mask mask-squircle w-12 h-12">
+                                  <img 
+                                    src={rank.partnership.player2.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'} 
+                                    alt={`${rank.partnership.player2.name}'s avatar`} 
+                                    className="object-cover"
+                                  />
+                                </div>
+                              </div>
+                              <div>
+                                <div className="font-bold text-base">{rank.partnership.player2.nickname ?? rank.partnership.player2.name}</div>
+                                {rank.partnership.player2.nickname && (
+                                  <div className="text-sm text-base-content/70">
+                                    {rank.partnership.player2.name}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </td>

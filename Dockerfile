@@ -9,6 +9,7 @@ COPY . .
 # install pnpm and deps
 RUN npm install -g pnpm
 RUN pnpm install
+RUN pnpm build
 
 EXPOSE 3000
-CMD [ "pnpm", "dx" ]
+CMD [ "pnpm", "start" ]
