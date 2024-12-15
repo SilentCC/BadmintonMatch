@@ -60,6 +60,13 @@ export default async function CreateMatchForm({
                 nickname: newPartnership1Nickname ?? null,
               }
             });
+
+            await prisma.doubleRank.create({
+              data: {
+                partnershipId: createdPartnership1.id,
+                score: 0
+              }
+            });
             partnership1Id = createdPartnership1.id;
           } catch (error) {
             console.log(error);
@@ -91,6 +98,13 @@ export default async function CreateMatchForm({
                 player1Id: newPartnership2Player1,
                 player2Id: newPartnership2Player2,
                 nickname: newPartnership2Nickname ?? null,
+              }
+            });
+
+            await prisma.doubleRank.create({
+              data: {
+                partnershipId: createdPartnership2.id,
+                score: 0
               }
             });
             partnership2Id = createdPartnership2.id;
