@@ -2,7 +2,6 @@ import { redirect } from 'next/navigation';
 import { signIn } from '~/auth';
 import AlertDialog from '~/components/AlertDialog';
 import { AuthError } from '@auth/core/errors';
-import { isRedirectError } from 'next/dist/client/components/redirect';
 import { AiFillGithub } from 'react-icons/ai';
 import { AiFillGoogleCircle } from 'react-icons/ai';
 import { AiFillTwitterCircle } from 'react-icons/ai';
@@ -20,20 +19,16 @@ export default function SignIn({ searchParams }: { searchParams: any }) {
               'use server';
               let errorMessage = '';
               try {
-                const result = await signIn('credentials', {
+                 await signIn('credentials', {
                   name: formData.get('name'),
                   password: formData.get('password'),
                   redirect: false,
                 });
 
-                console.log('ok1');
-                console.log(result);
-                console.log('ok2');
               } catch (error) {
                 console.log(error);
-                if (isRedirectError(error)) {
-                  throw error;
-                }
+                console.log('1111');
+                
                 if (error instanceof AuthError) {
                   if (error.cause?.err instanceof Error) {
                     errorMessage = error.cause.err.message;
@@ -47,6 +42,10 @@ export default function SignIn({ searchParams }: { searchParams: any }) {
                         break;
                     }
                   }
+                } else if (error instanceof Error) {
+                  errorMessage = error.message;
+                } else {
+                  errorMessage = 'An unknown error occurred';
                 }
               } finally {
                 if (errorMessage) {

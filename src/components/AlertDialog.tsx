@@ -1,9 +1,12 @@
 'use client'
 interface DialogProps {
-  message: string | null;
+  title?: string;
+  description?: string;
+  variant?: string;
+  message?: string | null;
 }
 
-export default function AlertDialog({ message }: DialogProps) {
+export default function AlertDialog({ title, description, message }: DialogProps) {
   const handleCloseDialog = () => {
     window.history.back();
   };
@@ -11,8 +14,8 @@ export default function AlertDialog({ message }: DialogProps) {
   return (
     <dialog id="my_modal_1" className="modal" open>
       <div className="modal-box">
-        <h3 className="font-bold text-lg">Hello!</h3>
-        <p className="py-4">{message}</p>
+        {title && <h3 className="font-bold text-lg">{title}</h3>}
+        <p className="py-4">{description ?? message}</p>
         <div className="modal-action">
           <form method="dialog">
             {/* if there is a button in form, it will close the modal */}

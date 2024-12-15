@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import Credentials from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from '~/server/prisma';
+import { AuthError } from 'next-auth';
 import Github from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 import Twitter from "next-auth/providers/twitter";
@@ -90,13 +91,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         });
 
         if (!user) {
-          throw new Error('No user found');
+          throw new AuthError('No user found');
         }
 
         const check = bcrypt.compareSync(password, user?.password ?? '');
 
         if (!check) {
-          throw new Error('password is not correct');
+          throw new AuthError('password is not correct');
         }
 
         return {
