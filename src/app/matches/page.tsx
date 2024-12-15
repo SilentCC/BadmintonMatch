@@ -150,18 +150,74 @@ export default async function MatchesPage() {
                     )}
                   </div>
                 ) : (
-                  <div className="flex items-center space-x-4">
-                    <div className="flex flex-col items-center">
-                      <div className="font-semibold">
-                        {match.partnership1?.nickname ?? 
-                         `${match.partnership1?.player1.nickname ?? match.partnership1?.player1.name} & 
-                          ${match.partnership1?.player2.nickname ?? match.partnership1?.player2.name}`}
+                  <div className="flex items-center justify-between space-x-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="avatar-group -space-x-3">
+                        <div className="avatar">
+                          <div className="mask mask-squircle w-12 h-12">
+                            <img 
+                              src={match.partnership1?.player1.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'} 
+                              alt={`${match.partnership1?.player1.name}'s avatar`} 
+                              className="object-cover"
+                            />
+                          </div>
+                        </div>
+                        <div className="avatar">
+                          <div className="mask mask-squircle w-12 h-12">
+                            <img 
+                              src={match.partnership1?.player2.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'} 
+                              alt={`${match.partnership1?.player2.name}'s avatar`} 
+                              className="object-cover"
+                            />
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-sm text-gray-500">vs</div>
-                      <div className="font-semibold">
-                        {match.partnership2?.nickname ?? 
-                         `${match.partnership2?.player1.nickname ?? match.partnership2?.player1.name} & 
-                          ${match.partnership2?.player2.nickname ?? match.partnership2?.player2.name}`}
+                      <div>
+                        <div className="font-semibold">
+                          {match.partnership1?.nickname ?? 
+                           `${match.partnership1?.player1.nickname ?? match.partnership1?.player1.name} & 
+                            ${match.partnership1?.player2.nickname ?? match.partnership1?.player2.name}`}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {match.partnership1?.player1.nickname ?? match.partnership1?.player1.name} 
+                          {' & '}
+                          {match.partnership1?.player2.nickname ?? match.partnership1?.player2.name}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-lg text-base-content/50 font-bold">vs</div>
+                    <div className="flex items-center space-x-3">
+                      <div className="avatar-group -space-x-3">
+                        <div className="avatar">
+                          <div className="mask mask-squircle w-12 h-12">
+                            <img 
+                              src={match.partnership2?.player1.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'} 
+                              alt={`${match.partnership2?.player1.name}'s avatar`} 
+                              className="object-cover"
+                            />
+                          </div>
+                        </div>
+                        <div className="avatar">
+                          <div className="mask mask-squircle w-12 h-12">
+                            <img 
+                              src={match.partnership2?.player2.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'} 
+                              alt={`${match.partnership2?.player2.name}'s avatar`} 
+                              className="object-cover"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        <div className="font-semibold">
+                          {match.partnership2?.nickname ?? 
+                           `${match.partnership2?.player1.nickname ?? match.partnership2?.player1.name} & 
+                            ${match.partnership2?.player2.nickname ?? match.partnership2?.player2.name}`}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {match.partnership2?.player1.nickname ?? match.partnership2?.player1.name} 
+                          {' & '}
+                          {match.partnership2?.player2.nickname ?? match.partnership2?.player2.name}
+                        </div>
                       </div>
                     </div>
                   </div>
