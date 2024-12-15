@@ -55,7 +55,7 @@ export default async function MatchesPage() {
 
   // Determine match status based on rounds
   const categorizedMatches: Record<string, MatchWithRelations[]> = matches.reduce((acc, match) => {
-    const isOpen = match.rounds.length === 0;
+    const isOpen = match.closed === false;
     const matchCategory = `${match.type.toLowerCase()}${isOpen ? 'Open' : 'Closed'}Matches`;
     
     if (!acc[matchCategory]) {
@@ -89,7 +89,7 @@ export default async function MatchesPage() {
               <div 
                 key={match.id} 
                 className={`bg-white shadow-md rounded-lg p-4 hover:shadow-lg transition-shadow w-full
-                  ${(match.type === 'DOUBLES' || match.type === 'SINGLES') && match.rounds.length === 0 
+                  ${(match.type === 'DOUBLES' || match.type === 'SINGLES') && match.closed === false 
                     ? 'flex flex-col items-center text-center space-y-2 md:space-y-4 ' +
                       'border border-blue-100 bg-blue-50/10 ' +
                       'transform hover:scale-105 active:scale-100 ' +
@@ -97,7 +97,7 @@ export default async function MatchesPage() {
                       'focus:outline-none focus:ring-2 focus:ring-blue-200'
                     : ''}`}
               >
-                {(match.type === 'DOUBLES' || match.type === 'SINGLES') && match.rounds.length === 0 && (
+                {(match.type === 'DOUBLES' || match.type === 'SINGLES') && match.closed === false && (
                   <div className="w-full flex justify-center mb-2">
                     <span className="badge badge-primary badge-outline">
                       Open Match

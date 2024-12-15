@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { updateMatchRound, addMatchRound } from '~/server/matchActions';
+import { updateMatchRound, addMatchRound, updateMatchClosedStatus } from '~/server/matchActions';
 import { MatchType, MatchRound } from '@prisma/client';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -170,6 +170,16 @@ export default function MatchDetailsView({
     } catch (error) {
       console.error('Failed to add round:', error);
       toast.error('Failed to add round');
+    }
+  };
+
+  const handleCloseMatch = async () => {
+    try {
+      await updateMatchClosedStatus(match.id, true);
+      toast.success('Match closed successfully.');
+    } catch (error) {
+      console.error('Failed to close match:', error);
+      toast.error('Failed to close match.');
     }
   };
 
@@ -415,9 +425,16 @@ export default function MatchDetailsView({
                   {match.type}
                 </span>
               </div>
-              <Link href="/matches" className="btn btn-sm btn-outline">
-                Back to Matches
-              </Link>
+              <div className="flex space-x-2">
+                <Link href="/matches" className="btn btn-sm btn-outline">
+                  Back to Matches
+                </Link>
+                {isParticipant && (
+                  <button className="btn btn-danger" onClick={handleCloseMatch}>
+                    Close Match
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-6">

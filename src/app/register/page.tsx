@@ -49,9 +49,25 @@ const RegisterPage = () => {
     resolver: zodResolver(registerSchema),
   });
 
+const addRank = trpc.rank.updateSingleScore.useMutation({
+  onSuccess: (result) => {
+    console.log('Mutation successful:', result);
+  },
+  onError: (error) => {
+    console.error('Mutation failed:', error);
+  },
+});
+
+
   const { mutateAsync: registerUser, isPending } = trpc.user.add.useMutation({
     onSuccess: (data) => {
       console.log(data.name);
+       // Call the TRPC mutation to create a new SinglePlayerRanking
+       addRank.mutate({
+        userId: data.id,
+        score: 0, // Set the initial score to 0
+       });
+
     },
     onError: (error) => {
       setError(error.message || 'register failed');
