@@ -48,14 +48,36 @@ const NewRoundInput: React.FC<{
   const [score2, setScore2] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSaveRound = () => {
-    // Validate scores
-    if (score1 < 0 || score1 > 21 || score2 < 0 || score2 > 21) {
-      setError("Scores must be between 0 and 21");
-      return;
-    }
+  const isScoreValid = (score: number, opponentScore: number) => {
+    const isWithinRange = score >= 0 && score <= 30;
+    const isWinningScoreValid = score === 30 ? opponentScore >= 29 : true;
+    const isLeadValid = score >= 21 && score < 30 ? score - opponentScore == 2 : true;
+    const isLeadValidUnder21 = score < 21 && score - opponentScore >= 2;
 
+    return isWithinRange && isWinningScoreValid && (isLeadValid || isLeadValidUnder21);
+  };
+
+  const validateScores = () => {
+    if(score1 > score2)
+    {
+      if (!isScoreValid(score1, score2)) {
+        setError("Invalid score.");
+        return false;
+      }
+    }
+    else
+    {
+      if (!isScoreValid(score2, score1)) {
+        setError("Invalid score.");
+        return false;
+      }
+    }
     setError(null);
+    return true;
+  };
+
+  const handleSaveRound = () => {
+    if (!validateScores()) return;
 
     // Add the round
     onAddRound(score1, score2);
@@ -67,12 +89,12 @@ const NewRoundInput: React.FC<{
 
   const handleScore1Change = (e: React.ChangeEvent<HTMLInputElement>) => {
     const score = Number(e.target.value);
-    setScore1(Math.min(Math.max(score, 0), 21));
+    setScore1(score);
   };
 
   const handleScore2Change = (e: React.ChangeEvent<HTMLInputElement>) => {
     const score = Number(e.target.value);
-    setScore2(Math.min(Math.max(score, 0), 21));
+    setScore2(score);
   };
 
   return (
@@ -84,7 +106,7 @@ const NewRoundInput: React.FC<{
           onChange={handleScore1Change}
           className="input input-bordered input-sm w-20" 
           min="0" 
-          max="21"
+          max="30"
         />
         <span>:</span>
         <input 
@@ -93,7 +115,7 @@ const NewRoundInput: React.FC<{
           onChange={handleScore2Change}
           className="input input-bordered input-sm w-20" 
           min="0" 
-          max="21"
+          max="30"
         />
         <button 
           className="btn btn-sm btn-primary" 
@@ -261,12 +283,20 @@ export default function MatchDetailsView({
                 type="number" 
                 defaultValue={round.player1Score ?? 0} 
                 className="input input-bordered input-sm w-20"
-                onChange={(e) => setEditingRound(prev => 
-                  prev ? {
-                    ...prev, 
-                    player1Score: Number(e.target.value)
-                  } : null
-                )}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  const player2Score = round.player2Score ?? 0;
+                  if (value < 0 || value > 30 || (value === 30 && player2Score < 29) || (value >= 21 && value < 30 && value - player2Score < 2)) {
+                    alert('Invalid score according to badminton rules.');
+                    return;
+                  }
+                  setEditingRound(prev => 
+                    prev ? {
+                      ...prev, 
+                      player1Score: value
+                    } : null
+                  )
+                }}
               />
             ) : (
               round.player1Score
@@ -278,12 +308,20 @@ export default function MatchDetailsView({
                 type="number" 
                 defaultValue={round.player2Score ?? 0} 
                 className="input input-bordered input-sm w-20"
-                onChange={(e) => setEditingRound(prev => 
-                  prev ? {
-                    ...prev, 
-                    player2Score: Number(e.target.value)
-                  } : null
-                )}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  const player1Score = round.player1Score ?? 0;
+                  if (value < 0 || value > 30 || (value === 30 && player1Score < 29) || (value >= 21 && value < 30 && value - player1Score < 2)) {
+                    alert('Invalid score according to badminton rules.');
+                    return;
+                  }
+                  setEditingRound(prev => 
+                    prev ? {
+                      ...prev, 
+                      player2Score: value
+                    } : null
+                  )
+                }}
               />
             ) : (
               round.player2Score
@@ -300,12 +338,19 @@ export default function MatchDetailsView({
                 type="number" 
                 defaultValue={round.partnership1Score ?? 0} 
                 className="input input-bordered input-sm w-20"
-                onChange={(e) => setEditingRound(prev => 
-                  prev ? {
-                    ...prev, 
-                    partnership1Score: Number(e.target.value)
-                  } : null
-                )}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (value > 30 || (value === 30 && (round.partnership2Score ?? 0) < 29) || (value >= 21 && value < 30 && value - (round.partnership2Score ?? 0) < 2)) {
+                    alert('Invalid score according to badminton rules.');
+                    return;
+                  }
+                  setEditingRound(prev => 
+                    prev ? {
+                      ...prev, 
+                      partnership1Score: value
+                    } : null
+                  )
+                }}
               />
             ) : (
               round.partnership1Score
@@ -317,12 +362,19 @@ export default function MatchDetailsView({
                 type="number" 
                 defaultValue={round.partnership2Score ?? 0} 
                 className="input input-bordered input-sm w-20"
-                onChange={(e) => setEditingRound(prev => 
-                  prev ? {
-                    ...prev, 
-                    partnership2Score: Number(e.target.value)
-                  } : null
-                )}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (value > 30 || (value === 30 && (round.partnership1Score ?? 0) < 29) || (value >= 21 && value < 30 && value - (round.partnership1Score ?? 0) < 2)) {
+                    alert('Invalid score according to badminton rules.');
+                    return;
+                  }
+                  setEditingRound(prev => 
+                    prev ? {
+                      ...prev, 
+                      partnership2Score: value
+                    } : null
+                  )
+                }}
               />
             ) : (
               round.partnership2Score

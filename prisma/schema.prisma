@@ -175,6 +175,7 @@ model Match {
   // Match metadata
   matchDate      DateTime     @default(now())
   location       String?
+  closed         Boolean       @default(false)
   
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
