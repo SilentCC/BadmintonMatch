@@ -9,8 +9,7 @@ export async function SinglePlayerRankings() {
     },
     include: {
       user: true
-    },
-    take: 10
+    }
   });
 
   return (
