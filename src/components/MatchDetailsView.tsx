@@ -6,19 +6,11 @@ import { MatchType, MatchRound } from '@prisma/client';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
-// Utility function for consistent date formatting
-const formatDate = (date: Date) => {
-  return date.toLocaleDateString('en-US', {
-    month: '2-digit',
-    day: '2-digit',
-    year: 'numeric'
-  });
-};
-
 type MatchWithRelations = {
   id: string;
   type: MatchType;
   createdAt: Date;
+  closed: boolean;
   player1?: { id: string; name: string | null; nickname?: string | null; image?: string | null } | null;
   player2?: { id: string; name: string | null; nickname?: string | null; image?: string | null } | null;
   partnership1?: { 
@@ -51,8 +43,8 @@ const NewRoundInput: React.FC<{
   const isScoreValid = (score: number, opponentScore: number) => {
     const isWithinRange = score >= 0 && score <= 30;
     const isWinningScoreValid = score === 30 ? opponentScore >= 29 : true;
-    const isLeadValid = score >= 21 && score < 30 ? score - opponentScore == 2 : true;
-    const isLeadValidUnder21 = score < 21 && score - opponentScore >= 2;
+    const isLeadValid = score > 21 && score < 30 ? score - opponentScore == 2 : true;
+    const isLeadValidUnder21 = score <= 21 && score - opponentScore >= 2;
 
     return isWithinRange && isWinningScoreValid && (isLeadValid || isLeadValidUnder21);
   };
@@ -138,14 +130,16 @@ export default function MatchDetailsView({
   const [editingRound, setEditingRound] = useState<MatchRound | null>(null);
   const [isAddingNewRound, setIsAddingNewRound] = useState(false);
 
-  const userCanAddRound = match.type === 'SINGLES' 
-    ? [match.player1?.id, match.player2?.id].includes(currentUserId ?? '')
-    : [
-        match.partnership1?.player1.id, 
-        match.partnership1?.player2.id,
-        match.partnership2?.player1.id, 
-        match.partnership2?.player2.id
-      ].includes(currentUserId ?? '');
+  const userCanAddRound = !match.closed && isParticipant && (
+    match.type === 'SINGLES'
+      ? [match.player1?.id, match.player2?.id].includes(currentUserId ?? '')
+      : [
+          match.partnership1?.player1.id, 
+          match.partnership1?.player2.id,
+          match.partnership2?.player1.id, 
+          match.partnership2?.player2.id
+        ].includes(currentUserId ?? '')
+  );
 
   const handleUpdateRound = async (roundId: string, score1: number, score2: number) => {
     try {
@@ -416,25 +410,31 @@ export default function MatchDetailsView({
           <div className="card-body">
             <h2 className="card-title text-2xl mb-4">Match Details</h2>
             
-            <div className="flex justify-between items-center mb-4">
-              <div>
-                <span className="text-sm text-gray-500">
-                  {formatDate(match.createdAt)}
-                </span>
-                <span className="ml-2 text-sm uppercase text-gray-600">
-                  {match.type}
-                </span>
-              </div>
-              <div className="flex space-x-2">
-                <Link href="/matches" className="btn btn-sm btn-outline">
-                  Back to Matches
-                </Link>
-                {isParticipant && (
-                  <button className="btn btn-danger" onClick={handleCloseMatch}>
-                    Close Match
-                  </button>
-                )}
-              </div>
+            <div className="flex flex-col sm:flex-row justify-between items-center mt-4 space-y-2 sm:space-y-0 sm:space-x-4">
+              <Link 
+                href="/matches" 
+                className="btn btn-outline btn-neutral btn-sm flex items-center gap-2 w-full sm:w-auto"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Matches
+              </Link>
+              {!match.closed && isParticipant && (
+                <button 
+                  className="btn btn-warning btn-sm flex items-center gap-2 w-full sm:w-auto"
+                  onClick={() => {
+                    if (confirm('Are you sure you want to close this match? This action cannot be undone.')) {
+                      handleCloseMatch();
+                    }
+                  }}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Close Match
+                </button>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-6">
@@ -496,13 +496,13 @@ export default function MatchDetailsView({
                       )}
                     </tr>
                   ))}
-                  {isParticipant && userCanAddRound && isAddingNewRound && (
+                  {!match.closed && isParticipant && userCanAddRound && isAddingNewRound && (
                     <NewRoundInput 
                       roundNumber={rounds.length + 1} 
                       onAddRound={handleAddNewRound} 
                     />
                   )}
-                  {isParticipant && userCanAddRound && !isAddingNewRound && (
+                  {!match.closed && isParticipant && userCanAddRound && !isAddingNewRound && (
                     <tr>
                       <td colSpan={4}>
                         <button 

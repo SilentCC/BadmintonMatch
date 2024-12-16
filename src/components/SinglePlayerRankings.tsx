@@ -4,11 +4,13 @@ import { prisma } from '~/server/prisma';
 
 export async function SinglePlayerRankings() {
   const ranks = await prisma.singleRank.findMany({
-    take: 10,
-    orderBy: { rank: 'asc' },
-    include: {
-      user: true,
+    orderBy: {
+      score: 'desc'
     },
+    include: {
+      user: true
+    },
+    take: 10
   });
 
   return (
@@ -40,7 +42,7 @@ export async function SinglePlayerRankings() {
                       index === 2 ? 'badge-accent' : 
                       'badge-ghost'
                     } badge-lg`}>
-                      {rank.rank}
+                      {index + 1}
                     </div>
                   </td>
                   <td>
