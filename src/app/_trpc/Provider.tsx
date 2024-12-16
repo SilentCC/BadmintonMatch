@@ -14,7 +14,7 @@ export default function Provider({ children }: { children: React.ReactNode }) {
       trpc.createClient({
         links: [
             httpBatchLink({
-                url: "https://badminton-cqaga7avg4ctbgcy.eastasia-01.azurewebsites.net/api/trpc",
+                url: process.env.NEXT_PUBLIC_TRPC_URL ?? "https://badminton-cqaga7avg4ctbgcy.eastasia-01.azurewebsites.net/api/trpc",
                 transformer: superjson
             }),
         ],

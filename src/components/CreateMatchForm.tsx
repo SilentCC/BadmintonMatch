@@ -1,6 +1,7 @@
 import { prisma } from "~/server/prisma";
 import { MatchType } from "@prisma/client";
 import { redirect } from "next/navigation";
+import CreateMatchFormClient from './CreateMatchFormClient';
 
 type User = {
   id: string;
@@ -394,71 +395,7 @@ export default async function CreateMatchForm({
         </div>
       </div>
 
-      <script dangerouslySetInnerHTML={{
-        __html: `
-          document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('createMatchForm');
-            const matchTypeRadios = form.querySelectorAll('input[name="matchType"]');
-            const singlesSection = document.getElementById('singlesSection');
-            const doublesSection = document.getElementById('doublesSection');
-
-            // Default to singles section
-            singlesSection.classList.remove('hidden');
-            doublesSection.classList.add('hidden');
-
-            // Toggle sections based on match type
-            matchTypeRadios.forEach(radio => {
-              radio.addEventListener('change', function() {
-                if (this.value === 'SINGLES') {
-                  singlesSection.classList.remove('hidden');
-                  doublesSection.classList.add('hidden');
-                } else {
-                  singlesSection.classList.add('hidden');
-                  doublesSection.classList.remove('hidden');
-                }
-              });
-            });
-
-            // Basic client-side validation before submission
-            form.addEventListener('submit', function(event) {
-              const matchType = form.querySelector('input[name="matchType"]:checked')?.value;
-              
-              if (matchType === 'SINGLES') {
-                const player1 = form.querySelector('select[name="player1Id"]');
-                const player2 = form.querySelector('select[name="player2Id"]');
-                
-                if (player1.value === '' || player2.value === '') {
-                  event.preventDefault();
-                  alert('Please select both players for a singles match');
-                  return;
-                }
-              } else if (matchType === 'DOUBLES') {
-                const partnership1Select = form.querySelector('select[name="partnership1Id"]');
-                const partnership2Select = form.querySelector('select[name="partnership2Id"]');
-                const newPartnership1Player1 = form.querySelector('select[name="newPartnership1Player1"]');
-                const newPartnership1Player2 = form.querySelector('select[name="newPartnership1Player2"]');
-                const newPartnership2Player1 = form.querySelector('select[name="newPartnership2Player1"]');
-                const newPartnership2Player2 = form.querySelector('select[name="newPartnership2Player2"]');
-
-                // Check if either existing partnership or new partnership is created
-                const isPartnership1Valid = 
-                  partnership1Select.value !== '' || 
-                  (newPartnership1Player1.value !== '' && newPartnership1Player2.value !== '');
-                
-                const isPartnership2Valid = 
-                  partnership2Select.value !== '' || 
-                  (newPartnership2Player1.value !== '' && newPartnership2Player2.value !== '');
-
-                if (!isPartnership1Valid || !isPartnership2Valid) {
-                  event.preventDefault();
-                  alert('Please select or create partnerships for both teams');
-                  return;
-                }
-              }
-            });
-          });
-        `
-      }} />
+      <CreateMatchFormClient />
     </div>
   );
 }
