@@ -1,0 +1,73 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+
+name: Run on specific tag
+
+on:
+  push:
+    tags: [ 'v*.*.*' ]
+
+jobs:
+ e2e:
+    name: 'Build + Publish image '
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8.5.1
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+          cache: 'pnpm' # You can active this cache when your repo has a lockfile
+
+      - name: Install deps (with cache)
+        run: pnpm install
+
+      - name: Install playwright
+        run: pnpm playwright install chromium
+
+      - name: Next.js cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-nextjs
+
+      - name: Setup Prisma
+        run: pnpm prebuild
+
+      - run: pnpm build
+
+      - name: Check types
+        run: pnpm tsc
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to registry
+        uses: docker/login-action@v3
+        with:
+         registry: ghcr.io
+         username: ${{ github.actor }}
+         password: ${{ secrets.GITHUB_TOKEN }}
+         
+      - name: Lowercase the repo name and username
+        run: echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
+
+      - name: Extract Tag Name
+        run: echo "IMAGE_TAG=${GITHUB_REF##*/}" >> ${GITHUB_ENV}
+
+      - name: Build and push container image to registry
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: ghcr.io/${{ env.REPO }}:${ IMAGE_TAG }
+          file: ./Dockerfile
