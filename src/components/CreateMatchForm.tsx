@@ -65,6 +65,10 @@ export default async function CreateMatchForm({
                 ? `${player1.nickname ?? player1.name ?? 'Player 1'} & ${player2.nickname ?? player2.name ?? 'Player 2'}`
                 : null);
 
+            if(newPartnership1Player1 === newPartnership1Player2) {
+              throw new Error('Players cannot be the same');
+            }
+            
             const createdPartnership1 = await prisma.partnership.create({
               data: {
                 player1Id: newPartnership1Player1,
@@ -115,6 +119,10 @@ export default async function CreateMatchForm({
               (player1 && player2
                 ? `${player1.nickname ?? player1.name ?? 'Player 1'} & ${player2.nickname ?? player2.name ?? 'Player 2'}`
                 : null);
+            
+            if(newPartnership2Player1 === newPartnership2Player2) {
+              throw new Error('Players cannot be the same');
+            }
 
             const createdPartnership2 = await prisma.partnership.create({
               data: {
@@ -146,6 +154,10 @@ export default async function CreateMatchForm({
       }
     } else {
       // For singles, ensure players are selected
+      if(player1Id === player2Id) {
+        redirect(`/matches/create?error=${encodeURIComponent('Players cannot be the same')}`);
+      }
+
       if (!player1Id || !player2Id) {
         redirect(`/matches/create?error=${encodeURIComponent('Both players must be selected')}`);
       }
