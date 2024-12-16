@@ -48,7 +48,8 @@ export default async function CreateMatchForm({
 
       console.log("fuck!")
 
-      if ((newPartnership1Player1 && newPartnership1Player2) ?? partnership1Id) {
+      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+      if ((newPartnership1Player1 && newPartnership1Player2) || partnership1Id) {
         if (newPartnership1Player1 && newPartnership1Player2 && 
             newPartnership1Player1 !== '' && 
             newPartnership1Player2 !== '') {
@@ -88,7 +89,8 @@ export default async function CreateMatchForm({
       const newPartnership2Player2 = formData.get('newPartnership2Player2') as string | null;
       const newPartnership2Nickname = formData.get('newPartnership2Nickname') as string | null;
 
-      if ((newPartnership2Player1 && newPartnership2Player2) ?? partnership2Id) {
+      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+      if ((newPartnership2Player1 && newPartnership2Player2) || partnership2Id) {
         if (newPartnership2Player1 && newPartnership2Player2 && 
             newPartnership2Player1 !== '' && 
             newPartnership2Player2 !== '') {
