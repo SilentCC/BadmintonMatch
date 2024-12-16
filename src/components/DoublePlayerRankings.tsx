@@ -4,7 +4,6 @@ import { prisma } from '~/server/prisma';
 
 export async function DoublePlayerRankings() {
   const ranks = await prisma.doubleRank.findMany({
-    take: 10,
     orderBy: { score: 'desc' },
     include: {
       partnership: {
