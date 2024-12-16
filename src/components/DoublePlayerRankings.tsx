@@ -16,7 +16,6 @@ export async function DoublePlayerRankings() {
     },
   });
 
-  // Sort ranks by score in descending order
   const sortedRanks = [...ranks].sort((a, b) => b.score - a.score);
 
   return (
@@ -53,137 +52,72 @@ export async function DoublePlayerRankings() {
                   </td>
                   <td>
                     <div className="flex items-center space-x-4">
-                      {/* Partnership Nickname */}
-                      <div className="flex flex-col">
-                        {rank.partnership.nickname ? (
-                          <div>
-                            <div className="font-bold text-lg text-primary">
-                              {rank.partnership.nickname}
-                            </div>
-                            <div className="text-sm text-base-content/70">
-                              {rank.partnership.player1.nickname ?? rank.partnership.player1.name} 
-                              {' & '}
-                              {rank.partnership.player2.nickname ?? rank.partnership.player2.name}
-                            </div>
+                      {rank.partnership.nickname ? (
+                        <div>
+                          <div className="font-bold text-lg text-primary">
+                            {rank.partnership.nickname}
                           </div>
-                        ) : (                          <div className="flex items-center space-x-4">
-                           {/* Player 1 */}
-
-                           <div className="flex items-center space-x-3">
-
-                             <div className="avatar">
-
-                               <div className="mask mask-squircle w-12 h-12">
-
-                                 <img 
-
-                                   src={rank.partnership.player1.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'} 
-
-                                   alt={`${rank.partnership.player1.name}'s avatar`} 
-
-                                   className="object-cover"
-
-                                 />
-
-                               </div>
-
-                             </div>
-
-                             <div>
-
-                               <div className="font-bold text-base">{rank.partnership.player1.nickname ?? rank.partnership.player1.name}</div>
-
-                                {rank.partnership.player1.nickname && (
-
-                                  <div className="text-sm text-base-content/70">
-
-                                    {rank.partnership.player1.name}
-
-                                  </div>
-
-                                )}
-
+                          <div className="text-sm text-base-content/70">
+                            {rank.partnership.player1.nickname ?? rank.partnership.player1.name} 
+                            {' & '}
+                            {rank.partnership.player2.nickname ?? rank.partnership.player2.name}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-4">
+                          <div className="flex items-center space-x-3">
+                            <div className="avatar">
+                              <div className="mask mask-squircle w-12 h-12">
+                                <img 
+                                  src={rank.partnership.player1.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'} 
+                                  alt={`${rank.partnership.player1.name}'s avatar`} 
+                                  className="object-cover"
+                                />
                               </div>
-
                             </div>
-
-                            <div className="font-bold text-lg text-base-content/50">&</div>
-
-                            {/* Player 2 */}
-
-                            <div className="flex items-center space-x-3">
-
-                              <div className="avatar">
-
-                                <div className="mask mask-squircle w-12 h-12">
-
-                                  <img 
-
-                                    src={rank.partnership.player2.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'} 
-
-                                    alt={`${rank.partnership.player2.name}'s avatar`} 
-
-                                    className="object-cover"
-
-                                  />
-
+                            <div>
+                              <div className="font-bold text-base">{rank.partnership.player1.nickname ?? rank.partnership.player1.name}</div>
+                              {rank.partnership.player1.nickname && (
+                                <div className="text-sm text-base-content/70">
+                                  {rank.partnership.player1.name}
                                 </div>
-
-                              </div>
-
-                              <div>
-
-                                <div className="font-bold text-base">{rank.partnership.player2.nickname ?? rank.partnership.player2.name}</div>
-
-                                {rank.partnership.player2.nickname && (
-
-                                  <div className="text-sm text-base-content/70">
-
-                                    {rank.partnership.player2.name}
-
-                                  </div>
-
-                                )}
-
-                              </div>
-
+                              )}
                             </div>
-
                           </div>
-
-                        )}
-
-                      </div>
-
+                          <div className="font-bold text-lg text-base-content/50">&</div>
+                          <div className="flex items-center space-x-3">
+                            <div className="avatar">
+                              <div className="mask mask-squircle w-12 h-12">
+                                <img 
+                                  src={rank.partnership.player2.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'} 
+                                  alt={`${rank.partnership.player2.name}'s avatar`} 
+                                  className="object-cover"
+                                />
+                              </div>
+                            </div>
+                            <div>
+                              <div className="font-bold text-base">{rank.partnership.player2.nickname ?? rank.partnership.player2.name}</div>
+                              {rank.partnership.player2.nickname && (
+                                <div className="text-sm text-base-content/70">
+                                  {rank.partnership.player2.name}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
-
                   </td>
-
                   <td>
-
                     <div className="badge badge-outline badge-lg text-base-content">{rank.score}</div>
-
                   </td>
-
                   <td className="text-base-content/70">{new Date(rank.updatedAt).toLocaleDateString()}</td>
-
                 </tr>
-
               ))}
-
             </tbody>
-
           </table>
-
         </div>
-
       </div>
-
     </div>
-
   );
-
 }
-
-
-
