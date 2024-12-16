@@ -55,11 +55,21 @@ export default async function CreateMatchForm({
             newPartnership1Player2 !== '') {
           let createdPartnership1Error: string | null = null;
           try {
+            // Find users before generating nickname
+            const player1 = await prisma.user.findUnique({ where: { id: newPartnership1Player1 } });
+            const player2 = await prisma.user.findUnique({ where: { id: newPartnership1Player2 } });
+
+            // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+            const partnership1Nickname = newPartnership1Nickname || 
+              (player1 && player2
+                ? `${player1.nickname ?? player1.name ?? 'Player 1'} & ${player2.nickname ?? player2.name ?? 'Player 2'}`
+                : null);
+
             const createdPartnership1 = await prisma.partnership.create({
               data: {
                 player1Id: newPartnership1Player1,
                 player2Id: newPartnership1Player2,
-                nickname: newPartnership1Nickname ?? null,
+                nickname: partnership1Nickname ?? null,
               }
             });
 
@@ -96,11 +106,21 @@ export default async function CreateMatchForm({
             newPartnership2Player2 !== '') {
           let createdPartnership2Error: string | null = null;
           try {
+            // Find users before generating nickname
+            const player1 = await prisma.user.findUnique({ where: { id: newPartnership2Player1 } });
+            const player2 = await prisma.user.findUnique({ where: { id: newPartnership2Player2 } });
+
+            // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+            const partnership2Nickname = newPartnership2Nickname || 
+              (player1 && player2
+                ? `${player1.nickname ?? player1.name ?? 'Player 1'} & ${player2.nickname ?? player2.name ?? 'Player 2'}`
+                : null);
+
             const createdPartnership2 = await prisma.partnership.create({
               data: {
                 player1Id: newPartnership2Player1,
                 player2Id: newPartnership2Player2,
-                nickname: newPartnership2Nickname ?? null,
+                nickname: partnership2Nickname ?? null,
               }
             });
 
