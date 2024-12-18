@@ -76,16 +76,18 @@ export const userRouter = router({
     .input(
       z.object({
         name: z.string(),
+        nickname: z.string().optional(),
         password: z.string(),
         image: z.string().nullable().optional(),
       })
     )
     .mutation(async ({ input }) => {
-      const { name, password, image } = input;
+      const { name, nickname, password, image } = input;
       input.password = bcrypt.hashSync(password, 10);
       const user = await prisma.user.create({
         data: {
           name,
+          nickname,
           password: input.password,
           image,
         },
