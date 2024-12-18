@@ -15,6 +15,7 @@ const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/web
 const registerSchema = z
   .object({
     name: z.string().min(1, 'name cannot be empty'),
+    nickname: z.string().min(1, 'nickname cannot be empty').optional(),
     password: z.string().min(1, 'password must be at least 1 characters'),
     confirmPassword: z
       .string()
@@ -103,6 +104,7 @@ const addRank = trpc.rank.updateSingleScore.useMutation({
     try {
       const result = await registerUser({
         name: data.name,
+        nickname: data.nickname,
         password: data.password,
       });
 
@@ -181,7 +183,7 @@ const addRank = trpc.rank.updateSingleScore.useMutation({
             {/* Name Input */}
             <div className="form-control w-full">
               <label className="label">
-                <span className="label-text">Name</span>
+                <span className="label-text">User Name</span>
               </label>
               <input
                 type="text"
@@ -191,6 +193,23 @@ const addRank = trpc.rank.updateSingleScore.useMutation({
               />
               {errors.name && (
                 <span className="text-sm text-error">{errors.name.message}</span>
+              )}
+            </div>
+
+            {/* Nickname Input */}
+            <div className="mb-4">
+              <label htmlFor="nickname" className="block text-gray-700 text-sm mb-2">
+                Nickname (Optional)
+              </label>
+              <input
+                type="text"
+                id="nickname"
+                {...register('nickname')}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                placeholder="Enter your nickname"
+              />
+              {errors.nickname && (
+                <p className="text-red-500 text-xs italic">{errors.nickname.message}</p>
               )}
             </div>
 
