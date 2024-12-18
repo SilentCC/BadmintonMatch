@@ -197,19 +197,18 @@ const addRank = trpc.rank.updateSingleScore.useMutation({
             </div>
 
             {/* Nickname Input */}
-            <div className="mb-4">
-              <label htmlFor="nickname" className="block text-gray-700 text-sm mb-2">
-                Nickname (Optional)
+            <div className="form-control w-full">
+              <label className="label">
+                <span className="label-text">Nickname</span>
               </label>
               <input
                 type="text"
-                id="nickname"
-                {...register('nickname')}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 placeholder="Enter your nickname"
+                className="input input-bordered w-full"
+                {...register('nickname')}
               />
               {errors.nickname && (
-                <p className="text-red-500 text-xs italic">{errors.nickname.message}</p>
+                <span className="text-sm text-error">{errors.nickname.message}</span>
               )}
             </div>
 
