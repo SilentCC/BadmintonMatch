@@ -154,16 +154,12 @@ export async function addMatchRound(matchId: string, team1Points: number, team2P
       roundNumber: nextRoundNumber,
       ...(match.type === 'SINGLES' 
         ? { 
-            player1Score: match.player1Id === session.user.id ? validatedTeam1Points : validatedTeam2Points,
-            player2Score: match.player2Id === session.user.id ? validatedTeam1Points : validatedTeam2Points
+            player1Score: validatedTeam1Points, 
+            player2Score: validatedTeam2Points
           }
         : {
-            partnership1Score: match.partnership1?.player1Id === session.user.id || match.partnership1?.player2Id === session.user.id 
-              ? validatedTeam1Points 
-              : validatedTeam2Points,
-            partnership2Score: match.partnership2?.player1Id === session.user.id || match.partnership2?.player2Id === session.user.id 
-              ? validatedTeam1Points 
-              : validatedTeam2Points
+            partnership1Score: validatedTeam1Points, 
+            partnership2Score: validatedTeam2Points
           })
     }
   });
@@ -214,43 +210,66 @@ export async function updateMatchClosedStatus(matchId: string, isClosed: boolean
     {
       if(match!.type === 'SINGLES')
       {
-          const player1rank = await prisma.singleRank.findFirst({
+          let player1rank = await prisma.singleRank.findFirst({
             where: { userId: match?.player1Id ?? '' },
           });
 
-          const player2rank = await prisma.singleRank.findFirst({
+          let player2rank = await prisma.singleRank.findFirst({
             where: { userId: match?.player2Id ?? '' },
           });
 
-          let player1points = player1rank?.score ?? 0;
-          let player2points = player2rank?.score ?? 0;
+          if (!player1rank) {
+            player1rank = await prisma.singleRank.create({
+              data: {
+                userId: match?.player1Id ?? '',
+                score: 0, 
+              },
+            });
+            console.log('New single rank created for player 1:', player1rank);
+          }
+
+          if (!player2rank) {
+            player2rank = await prisma.singleRank.create({
+              data: {
+                userId: match?.player2Id ?? '',
+                score: 0, 
+              },
+            });
+            console.log('New single rank created for player 2:', player2rank);
+          }
+
+          let player1points = player1rank.score ?? 0;
+          let player2points = player2rank.score ?? 0;
 
           for (const round of match!.rounds) 
           {
-            const res = await singleMode(player1rank?.score ?? 0, player2rank?.score ?? 0, round.player1Score ?? 0, round.player2Score ?? 0);
+            const res = await singleMode(player1rank.score ?? 0, player2rank.score ?? 0, round.player1Score ?? 0, round.player2Score ?? 0);
 
             player1points += res.playerADelta;
             player2points += res.playerBDelta;
           }
+
+          player1points = Math.max(player1points, 0);
+          player2points = Math.max(player2points, 0);
 
           await updateSingleRank(match?.player1Id ?? '', player1points);
           await updateSingleRank(match?.player2Id ?? '', player2points);
       }
       else
       {
-         const partnership1player1rank = await prisma.singleRank.findFirst({
+          let partnership1player1rank = await prisma.singleRank.findFirst({
             where: { userId: match?.partnership1?.player1Id ?? '' },
           });
         
-          const partnership1player2rank = await prisma.singleRank.findFirst({
+          let partnership1player2rank = await prisma.singleRank.findFirst({
             where: { userId: match?.partnership1?.player2Id ?? '' },
           });
         
-          const partnership2player1rank = await prisma.singleRank.findFirst({
+          let partnership2player1rank = await prisma.singleRank.findFirst({
             where: { userId: match?.partnership2?.player1Id ?? '' },
           });
         
-          const partnership2player2rank = await prisma.singleRank.findFirst({
+          let partnership2player2rank = await prisma.singleRank.findFirst({
             where: { userId: match?.partnership2?.player2Id ?? '' },
           });
 
@@ -262,10 +281,50 @@ export async function updateMatchClosedStatus(matchId: string, isClosed: boolean
             where: { partnershipId: match?.partnership2Id ?? '' },
           });
          
-          let partnership1player1points = partnership1player1rank?.score ?? 0;
-          let partnership1player2points = partnership1player2rank?.score ?? 0;
-          let partnership2player1points = partnership2player1rank?.score ?? 0;
-          let partnership2player2points = partnership2player2rank?.score ?? 0;
+          if (!partnership1player1rank) {
+            partnership1player1rank = await prisma.singleRank.create({
+              data: {
+                userId: match?.partnership1?.player1Id ?? '',
+                score: 0, 
+              },
+            });
+            console.log('New single rank created for partnership 1 player 1:', partnership1player1rank);
+          }
+
+          if (!partnership1player2rank) {
+            partnership1player2rank = await prisma.singleRank.create({
+              data: {
+                userId: match?.partnership1?.player2Id ?? '',
+                score: 0, 
+              },
+            });
+            console.log('New single rank created for partnership 1 player 2:', partnership1player2rank);
+          }
+
+          if (!partnership2player1rank) {
+            partnership2player1rank = await prisma.singleRank.create({
+              data: {
+                userId: match?.partnership2?.player1Id ?? '',
+                score: 0, 
+              },
+            });
+            console.log('New single rank created for partnership 2 player 1:', partnership2player1rank);
+          }
+
+          if (!partnership2player2rank) {
+            partnership2player2rank = await prisma.singleRank.create({
+              data: {
+                userId: match?.partnership2?.player2Id ?? '',
+                score: 0, 
+              },
+            });
+            console.log('New single rank created for partnership 2 player 2:', partnership2player2rank);
+          }
+
+          let partnership1player1points = partnership1player1rank.score ?? 0;
+          let partnership1player2points = partnership1player2rank.score ?? 0;
+          let partnership2player1points = partnership2player1rank.score ?? 0;
+          let partnership2player2points = partnership2player2rank.score ?? 0;
 
           let partnership1points = partnership1rank?.score ?? 0;
           let partnership2points = partnership2rank?.score ?? 0;
@@ -282,12 +341,26 @@ export async function updateMatchClosedStatus(matchId: string, isClosed: boolean
               );
 
               partnership1player1points += res.teamADelta[0] ?? 0;
+              console.log("partnership1player1points",partnership1player1points);
               partnership1player2points += res.teamADelta[1] ?? 0;
+              console.log("partnership1player2points",partnership1player2points);
               partnership2player1points += res.teamBDelta[0] ?? 0;
+              console.log("partnership2player1points",partnership2player1points);
               partnership2player2points += res.teamBDelta[1] ?? 0;
+              console.log("partnership2player2points",partnership2player2points);
               partnership1points += res.teamARatingDelta;
+              console.log("partnership1points",partnership1points);
               partnership2points += res.teamBRatingDelta;
+              console.log("partnership2points",partnership2points);
           }
+
+          partnership1player1points = Math.max(partnership1player1points, 0);
+          partnership1player2points = Math.max(partnership1player2points, 0);
+          partnership2player1points = Math.max(partnership2player1points, 0);
+          partnership2player2points = Math.max(partnership2player2points, 0);
+
+          partnership1points = Math.max(partnership1points, 0);
+          partnership2points = Math.max(partnership2points, 0);
 
           await updateSingleRank(match?.partnership1?.player1Id ?? '', partnership1player1points);
           await updateSingleRank(match?.partnership1?.player2Id ?? '', partnership1player2points);

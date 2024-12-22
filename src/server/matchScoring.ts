@@ -72,8 +72,9 @@ export async function doubleMode(teamA: number[], teamB: number[], scoreA: numbe
     const F = Math.round(1 + scoreDiff / 21); // Score difference factor, rounded to integer
 
     const deltaA = Math.round(F * K * (resultA - probA));
+    console.log("deltaA", deltaA)
     const deltaB = Math.round(F * K * (resultB - probB));
-
+    console.log("deltaB", deltaB)
     return {
         teamADelta: [
             deltaA,
@@ -95,7 +96,7 @@ export async function updateSingleRank(userId: string, points: number) {
   });
 
   if (currentSingleRank) {
-    const newScore = currentSingleRank.score + points;
+    const newScore = points;
     await prisma.singleRank.updateMany({
       where: { userId },
       data: { score: newScore },
@@ -110,7 +111,7 @@ export async function updateDoubleRank(partnershipId: string, points: number) {
   });
 
   if (currentDoubleRank) {
-    const newScore = currentDoubleRank.score + points;
+    const newScore = points;
     await prisma.doubleRank.updateMany({
       where: { partnershipId },
       data: { score: newScore },

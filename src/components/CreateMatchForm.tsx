@@ -163,6 +163,29 @@ export default async function CreateMatchForm({
       }
     }
 
+    // Check if all players in the match are different
+    let player1IdValue = player1Id;
+    let player2IdValue = player2Id;
+    if (matchType === 'DOUBLES') {
+      const partnership1 = await prisma.partnership.findUnique({ where: { id: partnership1Id ?? '' } });
+      const partnership2 = await prisma.partnership.findUnique({ where: { id: partnership2Id ?? '' } });
+      player1IdValue = partnership1?.player1Id ?? '';
+      player2IdValue = partnership1?.player2Id ?? '';
+      const player3IdValue = partnership2?.player1Id ?? '';
+      const player4IdValue = partnership2?.player2Id ?? '';
+      const playerIds = [player1IdValue, player2IdValue, player3IdValue, player4IdValue];
+      const uniquePlayerIds = new Set(playerIds);
+      if (uniquePlayerIds.size !== playerIds.length) {
+        redirect(`/matches/create?error=${encodeURIComponent('All players in the match must be different')}`);
+      }
+    } else {
+      const playerIds = [player1IdValue, player2IdValue];
+      const uniquePlayerIds = new Set(playerIds);
+      if (uniquePlayerIds.size !== playerIds.length) {
+        redirect(`/matches/create?error=${encodeURIComponent('All players in the match must be different')}`);
+      }
+    }
+
     let errorMessage: string | null = null;
     try {
       await prisma.match.create({
