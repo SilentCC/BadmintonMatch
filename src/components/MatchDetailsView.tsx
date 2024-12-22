@@ -142,6 +142,7 @@ export default function MatchDetailsView({
   const [rounds, setRounds] = useState(match.rounds);
   const [editingRound, setEditingRound] = useState<MatchRound | null>(null);
   const [isAddingNewRound, setIsAddingNewRound] = useState(false);
+  const [closingMatch, setClosingMatch] = useState(false);
 
   const userCanAddRound = !match.closed && isParticipant && (
     match.type === 'SINGLES'
@@ -181,12 +182,15 @@ export default function MatchDetailsView({
   };
 
   const handleCloseMatch = async () => {
+    setClosingMatch(true);
     try {
       await updateMatchClosedStatus(match.id, true);
       toast.success('Match closed successfully.');
     } catch (error) {
       console.error('Failed to close match:', error);
       toast.error('Failed to close match.');
+    } finally {
+      setClosingMatch(false);
     }
   };
 
@@ -441,11 +445,19 @@ export default function MatchDetailsView({
                       handleCloseMatch();
                     }
                   }}
+                  disabled={closingMatch}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Close Match
+                  {closingMatch ? (
+                    <div className="flex items-center">
+                      <svg className="animate-spin h-5 w-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 100 8v4a8 8 0 01-8-8z"></path>
+                      </svg>
+                      Closing...
+                    </div>
+                  ) : (
+                    'Close Match'
+                  )}
                 </button>
               )}
             </div>
