@@ -18,7 +18,7 @@ function calculateProbability(ratingA: number, ratingB : number) {
  * @param {number} [K=30] - K-factor
  * @returns {object} - New ratings for player A and player B
  */
-export function singleMode(playerA : number, playerB : number, scoreA : number, scoreB : number, K = 30) {
+export async function singleMode(playerA : number, playerB : number, scoreA : number, scoreB : number, K = 30) {
     const probA = calculateProbability(playerA, playerB);
     const probB = calculateProbability(playerB, playerA);
 
@@ -48,7 +48,7 @@ export function singleMode(playerA : number, playerB : number, scoreA : number, 
  * @param {number} [teamBRating=0] - Current rating of team B as a double team
  * @returns {object} - New ratings for both teams
  */
-export function doubleMode(teamA: number[], teamB: number[], scoreA: number, scoreB : number, teamARating = 0, teamBRating = 0, K = 30) {
+export async function doubleMode(teamA: number[], teamB: number[], scoreA: number, scoreB : number, teamARating = 0, teamBRating = 0, K = 30) {
     if (!teamA || teamA.length !== 2 || !teamB || teamB.length !== 2) {
         throw new Error("Both teamA and teamB must be arrays with exactly two players.");
     }
@@ -87,16 +87,6 @@ export function doubleMode(teamA: number[], teamB: number[], scoreA: number, sco
         teamBRatingDelta: deltaB
     };
 }
-
-// Example Usage
-// Single Mode
-const singleResult = singleMode(1500, 1600, 21, 18);
-console.log("Single Mode:", singleResult);
-
-// Double Mode
-const doubleResult = doubleMode([1500, 1600], [1550, 1650], 21, 19);
-console.log("Double Mode:", doubleResult);
-
 
 export async function updateSingleRank(userId: string, points: number) {
   const currentSingleRank = await prisma.singleRank.findFirst({

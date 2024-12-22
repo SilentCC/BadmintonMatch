@@ -87,6 +87,7 @@ export async function updateMatchRound(roundId: string, team1Points: number, tea
 }
 
 export async function addMatchRound(matchId: string, team1Points: number, team2Points: number) {
+
   const session = await auth();
   
   if (!session?.user) {
@@ -226,7 +227,7 @@ export async function updateMatchClosedStatus(matchId: string, isClosed: boolean
 
           for (const round of match!.rounds) 
           {
-            const res = singleMode(player1rank?.score ?? 0, player2rank?.score ?? 0, round.player1Score ?? 0, round.player2Score ?? 0);
+            const res = await singleMode(player1rank?.score ?? 0, player2rank?.score ?? 0, round.player1Score ?? 0, round.player2Score ?? 0);
 
             player1points += res.playerADelta;
             player2points += res.playerBDelta;
@@ -271,7 +272,7 @@ export async function updateMatchClosedStatus(matchId: string, isClosed: boolean
 
           for (const round of match!.rounds)
           {
-              const res = doubleMode(
+              const res = await doubleMode(
                 [partnership1player1rank?.score ?? 0, partnership1player2rank?.score ?? 0],
                 [partnership2player1rank?.score ?? 0, partnership2player2rank?.score ?? 0],
                 round.partnership1Score ?? 0,
