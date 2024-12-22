@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { auth } from '~/auth';
 import { prisma } from '~/server/prisma';
+import { doubleMode, singleMode, updateDoubleRank, updateSingleRank } from './matchScoring';
 
 export async function updateMatchRound(roundId: string, team1Points: number, team2Points: number) {
   const session = await auth();
@@ -86,6 +87,7 @@ export async function updateMatchRound(roundId: string, team1Points: number, tea
 }
 
 export async function addMatchRound(matchId: string, team1Points: number, team2Points: number) {
+
   const session = await auth();
   
   if (!session?.user) {
@@ -208,131 +210,101 @@ export async function updateMatchClosedStatus(matchId: string, isClosed: boolean
       }
     });
 
+    if (isClosed)
+    {
+      if(match!.type === 'SINGLES')
+      {
+          const player1rank = await prisma.singleRank.findFirst({
+            where: { userId: match?.player1Id ?? '' },
+          });
+
+          const player2rank = await prisma.singleRank.findFirst({
+            where: { userId: match?.player2Id ?? '' },
+          });
+
+          let player1points = player1rank?.score ?? 0;
+          let player2points = player2rank?.score ?? 0;
+
+          for (const round of match!.rounds) 
+          {
+            const res = await singleMode(player1rank?.score ?? 0, player2rank?.score ?? 0, round.player1Score ?? 0, round.player2Score ?? 0);
+
+            player1points += res.playerADelta;
+            player2points += res.playerBDelta;
+          }
+
+          await updateSingleRank(match?.player1Id ?? '', player1points);
+          await updateSingleRank(match?.player2Id ?? '', player2points);
+      }
+      else
+      {
+         const partnership1player1rank = await prisma.singleRank.findFirst({
+            where: { userId: match?.partnership1?.player1Id ?? '' },
+          });
+        
+          const partnership1player2rank = await prisma.singleRank.findFirst({
+            where: { userId: match?.partnership1?.player2Id ?? '' },
+          });
+        
+          const partnership2player1rank = await prisma.singleRank.findFirst({
+            where: { userId: match?.partnership2?.player1Id ?? '' },
+          });
+        
+          const partnership2player2rank = await prisma.singleRank.findFirst({
+            where: { userId: match?.partnership2?.player2Id ?? '' },
+          });
+
+          const partnership1rank = await prisma.doubleRank.findFirst({
+            where: { partnershipId: match?.partnership1Id ?? '' },
+          });
+        
+          const partnership2rank = await prisma.doubleRank.findFirst({
+            where: { partnershipId: match?.partnership2Id ?? '' },
+          });
+         
+          let partnership1player1points = partnership1player1rank?.score ?? 0;
+          let partnership1player2points = partnership1player2rank?.score ?? 0;
+          let partnership2player1points = partnership2player1rank?.score ?? 0;
+          let partnership2player2points = partnership2player2rank?.score ?? 0;
+
+          let partnership1points = partnership1rank?.score ?? 0;
+          let partnership2points = partnership2rank?.score ?? 0;
+
+          for (const round of match!.rounds)
+          {
+              const res = await doubleMode(
+                [partnership1player1rank?.score ?? 0, partnership1player2rank?.score ?? 0],
+                [partnership2player1rank?.score ?? 0, partnership2player2rank?.score ?? 0],
+                round.partnership1Score ?? 0,
+                round.partnership2Score ?? 0,
+                partnership1rank?.score ?? 0,
+                partnership2rank?.score ?? 0
+              );
+
+              partnership1player1points += res.teamADelta[0] ?? 0;
+              partnership1player2points += res.teamADelta[1] ?? 0;
+              partnership2player1points += res.teamBDelta[0] ?? 0;
+              partnership2player2points += res.teamBDelta[1] ?? 0;
+              partnership1points += res.teamARatingDelta;
+              partnership2points += res.teamBRatingDelta;
+          }
+
+          await updateSingleRank(match?.partnership1?.player1Id ?? '', partnership1player1points);
+          await updateSingleRank(match?.partnership1?.player2Id ?? '', partnership1player2points);
+          await updateSingleRank(match?.partnership2?.player1Id ?? '', partnership2player1points);
+          await updateSingleRank(match?.partnership2?.player2Id ?? '', partnership2player2points);
+
+          await updateDoubleRank(match?.partnership1Id ?? '', partnership1points);
+          await updateDoubleRank(match?.partnership2Id ?? '', partnership2points);
+      }
+    }
+
     if (!match) {
       throw new Error(`Match with ID ${matchId} not found`);
     }
 
-    if(isClosed){
-
-const baseScore = 50; // Base points (for Super 500 tournament)
-const closeGameMultiplier = 0.4; // Close game reward coefficient
-const moderateWinMultiplier = 0.2; // Moderate difference reward coefficient
-const largeWinMultiplier = 0.1; // Large score win reward coefficient
-const loseCloseGameMultiplier = 0.6; // Preserve points for close defeat
-const loseModerateGameMultiplier = 0.3; // Preserve points for moderate defeat
-const loseLargeGameMultiplier = 0.1; // Preserve points for large defeat
-
-
-// Calculate the net win points bonus
-function calculatePointAdjustment(baseScore : number, scoreDiff : number, isWinner : boolean) {
-    if (scoreDiff <= 3) {
-        return isWinner ? baseScore * closeGameMultiplier : baseScore * loseCloseGameMultiplier;
-    } else if (scoreDiff <= 7) {
-        return isWinner ? baseScore * moderateWinMultiplier : baseScore * loseModerateGameMultiplier;
-    } else {
-        return isWinner ? baseScore * largeWinMultiplier : baseScore * loseLargeGameMultiplier; // Large defeat preserves a small amount of points
-    }
-}
-
-// Singles points calculation
-if (match.type === 'SINGLES') {
-    let player1Points = 0;
-    let player2Points = 0;
-
-    for (const round of match.rounds) {
-        const score1 = round.player1Score ?? 0;
-        const score2 = round.player2Score ?? 0;
-        const scoreDiff = Math.abs(score1 - score2);
-
-        if (score1 > score2) {
-            player1Points += baseScore + calculatePointAdjustment(baseScore, scoreDiff, true);
-            player2Points += calculatePointAdjustment(baseScore, scoreDiff, false);
-        } else if (score2 > score1) {
-            player2Points += baseScore + calculatePointAdjustment(baseScore, scoreDiff, true);
-            player1Points += calculatePointAdjustment(baseScore, scoreDiff, false);
-        }
-    }
-
-    await updateSingleRank(match.player1Id ?? '', player1Points);
-    await updateSingleRank(match.player2Id ?? '', player2Points);
-
-} else if (match.type === 'DOUBLES') {
-    // Doubles points calculation
-    let partnership1Points = 0;
-    let partnership2Points = 0;
-
-    let partnership1player1Points = 0;
-    let partnership1player2Points = 0;
-    let partnership2player1Points = 0;
-    let partnership2player2Points = 0;
-
-    for (const round of match.rounds) {
-        const score1 = round.partnership1Score ?? 0;
-        const score2 = round.partnership2Score ?? 0;
-        const scoreDiff = Math.abs(score1 - score2);
-
-        if (score1 > score2) {
-            partnership1Points += baseScore + calculatePointAdjustment(baseScore, scoreDiff, true);
-            partnership2Points += calculatePointAdjustment(baseScore, scoreDiff, false);
-
-            partnership1player1Points += baseScore + calculatePointAdjustment(baseScore, scoreDiff, true);
-            partnership1player2Points += baseScore + calculatePointAdjustment(baseScore, scoreDiff, true);
-
-            partnership2player1Points += calculatePointAdjustment(baseScore, scoreDiff, false);
-            partnership2player2Points += calculatePointAdjustment(baseScore, scoreDiff, false);
-        } else if (score2 > score1) {
-            partnership2Points += baseScore + calculatePointAdjustment(baseScore, scoreDiff, true);
-            partnership1Points += calculatePointAdjustment(baseScore, scoreDiff, false);
-
-            partnership2player1Points += baseScore + calculatePointAdjustment(baseScore, scoreDiff, true);
-            partnership2player2Points += baseScore + calculatePointAdjustment(baseScore, scoreDiff, true);
-
-            partnership1player1Points += calculatePointAdjustment(baseScore, scoreDiff, false);
-            partnership1player2Points += calculatePointAdjustment(baseScore, scoreDiff, false);
-        }
-    }
-
-    await updateDoubleRank(match.partnership1?.id ?? '', partnership1Points);
-    await updateDoubleRank(match.partnership2?.id ?? '', partnership2Points);
-
-    await updateSingleRank(match.partnership1?.player1.id ?? '', partnership1player1Points);
-    await updateSingleRank(match.partnership1?.player2.id ?? '', partnership1player2Points);
-    await updateSingleRank(match.partnership2?.player1.id ?? '', partnership2player1Points);
-    await updateSingleRank(match.partnership2?.player2.id ?? '', partnership2player2Points);
-}
-    }
 
     // Optionally, you can revalidate the path if needed
     revalidatePath(`/matches/${matchId}`);
-  }
-}
-
-async function updateSingleRank(userId: string, points: number) {
-  const currentSingleRank = await prisma.singleRank.findFirst({
-    where: {  userId },
-    select: { score: true },
-  });
-
-  if (currentSingleRank) {
-    const newScore = currentSingleRank.score + points;
-    await prisma.singleRank.updateMany({
-      where: { userId },
-      data: { score: newScore },
-    });
-  }
-}
-
-async function updateDoubleRank(partnershipId: string, points: number) {
-  const currentDoubleRank = await prisma.doubleRank.findFirst({
-    where: { partnershipId },
-    select: { score: true },
-  });
-
-  if (currentDoubleRank) {
-    const newScore = currentDoubleRank.score + points;
-    await prisma.doubleRank.updateMany({
-      where: { partnershipId },
-      data: { score: newScore },
-    });
   }
 }
