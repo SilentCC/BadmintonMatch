@@ -2,6 +2,7 @@ import { prisma } from "~/server/prisma";
 import { MatchType } from "@prisma/client";
 import { redirect } from "next/navigation";
 import CreateMatchFormClient from './CreateMatchFormClient';
+import { SubmitButton } from './CreateMatchFormClient';
 
 type User = {
   id: string;
@@ -21,9 +22,9 @@ type CreateMatchFormProps = {
   partnerships: Partnership[];
 };
 
-export default async function CreateMatchForm({ 
-  users, 
-  partnerships 
+export default async function CreateMatchForm({
+  users,
+  partnerships
 }: CreateMatchFormProps) {
   const handleSubmit = async (formData: FormData) => {
     'use server';
@@ -50,8 +51,8 @@ export default async function CreateMatchForm({
 
       // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
       if ((newPartnership1Player1 && newPartnership1Player2) || partnership1Id) {
-        if (newPartnership1Player1 && newPartnership1Player2 && 
-            newPartnership1Player1 !== '' && 
+        if (newPartnership1Player1 && newPartnership1Player2 &&
+            newPartnership1Player1 !== '' &&
             newPartnership1Player2 !== '') {
           let createdPartnership1Error: string | null = null;
           try {
@@ -60,7 +61,7 @@ export default async function CreateMatchForm({
             const player2 = await prisma.user.findUnique({ where: { id: newPartnership1Player2 } });
 
             // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-            const partnership1Nickname = newPartnership1Nickname || 
+            const partnership1Nickname = newPartnership1Nickname ||
               (player1 && player2
                 ? `${player1.nickname ?? player1.name ?? 'Player 1'} & ${player2.nickname ?? player2.name ?? 'Player 2'}`
                 : null);
@@ -68,7 +69,7 @@ export default async function CreateMatchForm({
             if(newPartnership1Player1 === newPartnership1Player2) {
               throw new Error('Players cannot be the same');
             }
-            
+
             const createdPartnership1 = await prisma.partnership.create({
               data: {
                 player1Id: newPartnership1Player1,
@@ -105,8 +106,8 @@ export default async function CreateMatchForm({
 
       // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
       if ((newPartnership2Player1 && newPartnership2Player2) || partnership2Id) {
-        if (newPartnership2Player1 && newPartnership2Player2 && 
-            newPartnership2Player1 !== '' && 
+        if (newPartnership2Player1 && newPartnership2Player2 &&
+            newPartnership2Player1 !== '' &&
             newPartnership2Player2 !== '') {
           let createdPartnership2Error: string | null = null;
           try {
@@ -115,11 +116,11 @@ export default async function CreateMatchForm({
             const player2 = await prisma.user.findUnique({ where: { id: newPartnership2Player2 } });
 
             // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-            const partnership2Nickname = newPartnership2Nickname || 
+            const partnership2Nickname = newPartnership2Nickname ||
               (player1 && player2
                 ? `${player1.nickname ?? player1.name ?? 'Player 1'} & ${player2.nickname ?? player2.name ?? 'Player 2'}`
                 : null);
-            
+
             if(newPartnership2Player1 === newPartnership2Player2) {
               throw new Error('Players cannot be the same');
             }
@@ -188,6 +189,7 @@ export default async function CreateMatchForm({
 
     let errorMessage: string | null = null;
     try {
+      await new Promise(resolve => setTimeout(resolve, 2000));
       await prisma.match.create({
         data: {
           type: matchType,
@@ -301,8 +303,8 @@ export default async function CreateMatchForm({
                         <option value="">Select Existing Partnership</option>
                         {partnerships.map((partnership) => (
                           <option key={partnership.id} value={partnership.id}>
-                            {partnership.nickname ?? 
-                             `${partnership.player1.nickname ?? partnership.player1.name} & 
+                            {partnership.nickname ??
+                             `${partnership.player1.nickname ?? partnership.player1.name} &
                               ${partnership.player2.nickname ?? partnership.player2.name}`}
                           </option>
                         ))}
@@ -357,8 +359,8 @@ export default async function CreateMatchForm({
                         <option value="">Select Existing Partnership</option>
                         {partnerships.map((partnership) => (
                           <option key={partnership.id} value={partnership.id}>
-                            {partnership.nickname ?? 
-                             `${partnership.player1.nickname ?? partnership.player1.name} & 
+                            {partnership.nickname ??
+                             `${partnership.player1.nickname ?? partnership.player1.name} &
                               ${partnership.player2.nickname ?? partnership.player2.name}`}
                           </option>
                         ))}
@@ -440,12 +442,7 @@ export default async function CreateMatchForm({
               </div>
 
               <div className="form-control mt-6">
-                <button 
-                  type="submit" 
-                  className="btn btn-primary w-full"
-                >
-                  Create Match
-                </button>
+                <SubmitButton />
               </div>
             </form>
           </div>
