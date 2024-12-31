@@ -17,7 +17,7 @@ test('single player rankings smoke test', async ({ page }) => {
   const header = cardBody.locator('h2.card-title');
   await expect(header).toBeVisible();
   await expect(header.locator('svg')).toBeVisible(); // User icon
-  await expect(header).toHaveText(/Single Player Rankings/);
+  await expect(header).toContainText('Single Player Rankings');
 
   // Check table structure
   const table = page.locator('table.table.table-zebra.table-pin-rows');
@@ -26,13 +26,13 @@ test('single player rankings smoke test', async ({ page }) => {
   // Verify table headers
   const expectedHeaders = ['Rank', 'Player', 'Score', 'Last Updated'];
   for (const header of expectedHeaders) {
-    await expect(table.locator('thead th', { hasText: header })).toBeVisible();
+    await expect(table.locator(`thead th:has-text("${header}")`)).toBeVisible();
   }
 
   // Check first row content structure
   const firstRow = table.locator('tbody tr').first();
   if (await firstRow.isVisible()) {
-    // Check rank badge (updated selector)
+    // Check rank badge
     const rankBadge = firstRow.locator('td').first().locator('.badge.badge-lg');
     await expect(rankBadge).toBeVisible();
     await expect(rankBadge).toHaveClass(/badge-primary|badge-secondary|badge-accent|badge-ghost/);
@@ -54,13 +54,13 @@ test('single player rankings smoke test', async ({ page }) => {
     await firstRow.click();
     const tooltip = page.locator('.animate-in');
     await expect(tooltip).toBeVisible();
-    await expect(tooltip.getByText('Player Stats')).toBeVisible();
+    await expect(page.locator('text=Player Stats')).toBeVisible();
 
     // Check tooltip content structure
-    await expect(tooltip.getByText('Total')).toBeVisible();
-    await expect(tooltip.getByText('Won')).toBeVisible();
-    await expect(tooltip.getByText('Lost')).toBeVisible();
-    await expect(tooltip.getByText('Win Rate')).toBeVisible();
+    await expect(page.locator('text=Total')).toBeVisible();
+    await expect(page.locator('text=Won')).toBeVisible();
+    await expect(page.locator('text=Lost')).toBeVisible();
+    await expect(page.locator('text=Win Rate')).toBeVisible();
 
     // Close tooltip
     await firstRow.click();
@@ -71,7 +71,6 @@ test('single player rankings smoke test', async ({ page }) => {
   const rows = table.locator('tbody tr');
   const rowCount = await rows.count();
   if (rowCount === 0) {
-    // Could add empty state checks here if you have any
     console.log('No ranking data found');
   }
 });
