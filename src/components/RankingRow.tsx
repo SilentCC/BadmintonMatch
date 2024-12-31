@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { PlayerStatsTooltip } from './PlayerStatsTooltip';
+import { useActiveStats } from './RankingsTableWrapper';
 
 interface RankingRowProps {
   rank: {
@@ -19,9 +19,9 @@ interface RankingRowProps {
 }
 
 export function RankingRow({ rank, index }: RankingRowProps) {
-  const [showStats, setShowStats] = useState(false);
+  const { activeId, setActiveId } = useActiveStats();
+  const isActive = activeId === rank.user.id;
 
-  // Format date consistently using Intl.DateTimeFormat
   const formattedDate = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: '2-digit',
@@ -31,7 +31,7 @@ export function RankingRow({ rank, index }: RankingRowProps) {
   return (
     <tr
       className="hover:bg-base-200 transition-colors relative cursor-pointer"
-      onClick={() => setShowStats(!showStats)}
+      onClick={() => setActiveId(isActive ? null : rank.user.id)}
     >
       <td>
         <div className={`badge ${
@@ -61,10 +61,10 @@ export function RankingRow({ rank, index }: RankingRowProps) {
                 {rank.user.name}
               </div>
             )}
-            {showStats && (
+            {isActive && (
               <PlayerStatsTooltip
                 userId={rank.user.id}
-                isVisible={showStats}
+                isVisible={true}
               />
             )}
           </div>

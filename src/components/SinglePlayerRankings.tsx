@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '~/server/prisma';
-import { RankingRow } from './RankingRow';
+import { RankingsTableWrapper } from './RankingsTableWrapper';
 
 export async function SinglePlayerRankings() {
   const ranks = await prisma.singleRank.findMany({
@@ -23,25 +23,7 @@ export async function SinglePlayerRankings() {
           Single Player Rankings
         </h2>
         <div className="overflow-x-auto">
-          <table className="table table-zebra table-pin-rows">
-            <thead>
-              <tr className="text-base text-base-content">
-                <th>Rank</th>
-                <th>Player</th>
-                <th>Score</th>
-                <th>Last Updated</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ranks.map((rank, index) => (
-                <RankingRow
-                  key={rank.id}
-                  rank={rank}
-                  index={index}
-                />
-              ))}
-            </tbody>
-          </table>
+          <RankingsTableWrapper rankings={ranks} />
         </div>
       </div>
     </div>
