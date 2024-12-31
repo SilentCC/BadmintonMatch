@@ -48,6 +48,9 @@ jobs:
       - name: Setup Prisma
         run: pnpm prebuild
 
+      - name: Prisma db seed
+        run: pnpm db-seed
+
       - run: pnpm build
       - run: pnpm test-e2e
 
@@ -63,7 +66,7 @@ jobs:
          registry: ghcr.io
          username: ${{ github.actor }}
          password: ${{ secrets.GITHUB_TOKEN }}
-         
+
       - name: Lowercase the repo name and username
         run: echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
 
