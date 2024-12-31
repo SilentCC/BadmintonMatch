@@ -1,0 +1,45 @@
+# Disallow all crawlers
+User-agent: *
+Disallow: /
+
+# Block specific crawlers
+User-agent: Googlebot
+Disallow: /
+
+User-agent: Bingbot
+Disallow: /
+
+User-agent: Slurp
+Disallow: /
+
+User-agent: DuckDuckBot
+Disallow: /
+
+User-agent: Baiduspider
+Disallow: /
+
+User-agent: YandexBot
+Disallow: /
+
+# Block archive.org
+User-agent: archive.org_bot
+Disallow: /
+
+# Block ChatGPT
+User-agent: GPTBot
+Disallow: /
+
+# Block Google-Extended
+User-agent: Google-Extended
+Disallow: /
+
+# Block Claude
+User-agent: anthropic-ai
+Disallow: /
+
+# Block Common Crawl
+User-agent: CCBot
+Disallow: /
+
+# Sitemap (optional, remove if you don't want to provide one)
+# Sitemap: https://yourdomain.com/sitemap.xml

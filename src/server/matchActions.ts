@@ -8,7 +8,7 @@ import { doubleMode, singleMode, updateDoubleRank, updateSingleRank } from './ma
 
 export async function updateMatchRound(roundId: string, team1Points: number, team2Points: number) {
   const session = await auth();
-  
+
   if (!session?.user) {
     throw new Error('Unauthorized');
   }
@@ -48,17 +48,17 @@ export async function updateMatchRound(roundId: string, team1Points: number, tea
   }
 
   const match = round.match;
-  
+
   if (!match) {
     throw new Error(`No match associated with MatchRound ID ${roundId}`);
   }
 
-  const isParticipant = match.type === 'SINGLES' 
+  const isParticipant = match.type === 'SINGLES'
     ? (match.player1Id === session.user.id || match.player2Id === session.user.id)
     : (
-        (match.partnership1?.player1Id === session.user.id || 
+        (match.partnership1?.player1Id === session.user.id ||
          match.partnership1?.player2Id === session.user.id) ||
-        (match.partnership2?.player1Id === session.user.id || 
+        (match.partnership2?.player1Id === session.user.id ||
          match.partnership2?.player2Id === session.user.id)
       );
 
@@ -69,7 +69,7 @@ export async function updateMatchRound(roundId: string, team1Points: number, tea
   // Update the round
   const updatedRound = await prisma.matchRound.update({
     where: { id: roundId },
-    data: match.type === 'SINGLES' 
+    data: match.type === 'SINGLES'
       ? {
           player1Score: validatedTeam1Points,
           player2Score: validatedTeam2Points
@@ -89,7 +89,7 @@ export async function updateMatchRound(roundId: string, team1Points: number, tea
 export async function addMatchRound(matchId: string, team1Points: number, team2Points: number) {
 
   const session = await auth();
-  
+
   if (!session?.user) {
     throw new Error('Unauthorized');
   }
@@ -129,12 +129,12 @@ export async function addMatchRound(matchId: string, team1Points: number, team2P
   }
 
   // Check if the user is a participant
-  const isParticipant = match.type === 'SINGLES' 
+  const isParticipant = match.type === 'SINGLES'
     ? [match.player1Id, match.player2Id].includes(session.user.id)
     : [
-        match.partnership1?.player1Id, 
+        match.partnership1?.player1Id,
         match.partnership1?.player2Id,
-        match.partnership2?.player1Id, 
+        match.partnership2?.player1Id,
         match.partnership2?.player2Id
       ].includes(session.user.id);
 
@@ -143,8 +143,8 @@ export async function addMatchRound(matchId: string, team1Points: number, team2P
   }
 
   // Determine the next round number
-  const nextRoundNumber = match.rounds.length > 0 
-    ? (match.rounds[0]?.roundNumber ?? 1) + 1 
+  const nextRoundNumber = match.rounds.length > 0
+    ? (match.rounds[0]?.roundNumber ?? 1) + 1
     : 1;
 
   // Create new round
@@ -152,13 +152,13 @@ export async function addMatchRound(matchId: string, team1Points: number, team2P
     data: {
       matchId: match.id,
       roundNumber: nextRoundNumber,
-      ...(match.type === 'SINGLES' 
-        ? { 
-            player1Score: validatedTeam1Points, 
+      ...(match.type === 'SINGLES'
+        ? {
+            player1Score: validatedTeam1Points,
             player2Score: validatedTeam2Points
           }
         : {
-            partnership1Score: validatedTeam1Points, 
+            partnership1Score: validatedTeam1Points,
             partnership2Score: validatedTeam2Points
           })
     }
@@ -170,6 +170,86 @@ export async function addMatchRound(matchId: string, team1Points: number, team2P
   return newRound;
 }
 
+async function updatePlayerStats(matchId: string) {
+  const match = await prisma.match.findUnique({
+    where: { id: matchId },
+    include: {
+      rounds: true,
+      player1: true,
+      player2: true,
+      partnership1: {
+        include: {
+          player1: true,
+          player2: true,
+        }
+      },
+      partnership2: {
+        include: {
+          player1: true,
+          player2: true,
+        }
+      }
+    }
+  });
+
+  if (!match) return;
+
+  // Calculate total matches, wins, losses for each player
+  const updateStats = async (userId: string, isWinner: boolean) => {
+    let playerStats = await prisma.playerStats.findUnique({
+      where: { playerId: userId }
+    });
+
+    if (!playerStats) {
+      playerStats = await prisma.playerStats.create({
+        data: {
+          playerId: userId,
+          totalMatches: 0,
+          wonMatches: 0,
+          lostMatches: 0,
+          winPercentage: 0
+        }
+      });
+    }
+
+    const totalMatches = playerStats.totalMatches + 1;
+    const wonMatches = playerStats.wonMatches + (isWinner ? 1 : 0);
+    const lostMatches = playerStats.lostMatches + (isWinner ? 0 : 1);
+    const winPercentage = Math.round((wonMatches / totalMatches) * 100);
+
+    await prisma.playerStats.update({
+      where: { playerId: userId },
+      data: {
+        totalMatches,
+        wonMatches,
+        lostMatches,
+        winPercentage
+      }
+    });
+  };
+
+  // Calculate winners based on total points
+  if (match.type === 'SINGLES') {
+    const player1Points = match.rounds.reduce((sum, round) => sum + (round.player1Score ?? 0), 0);
+    const player2Points = match.rounds.reduce((sum, round) => sum + (round.player2Score ?? 0), 0);
+
+    await updateStats(match.player1Id ?? '', player1Points > player2Points);
+    await updateStats(match.player2Id ?? '', player2Points > player1Points);
+  } else {
+    const team1Points = match.rounds.reduce((sum, round) => sum + (round.partnership1Score ?? 0), 0);
+    const team2Points = match.rounds.reduce((sum, round) => sum + (round.partnership2Score ?? 0), 0);
+
+    if (match.partnership1?.player1Id && match.partnership1?.player2Id) {
+      await updateStats(match.partnership1.player1Id, team1Points > team2Points);
+      await updateStats(match.partnership1.player2Id, team1Points > team2Points);
+    }
+
+    if (match.partnership2?.player1Id && match.partnership2?.player2Id) {
+      await updateStats(match.partnership2.player1Id, team2Points > team1Points);
+      await updateStats(match.partnership2.player2Id, team2Points > team1Points);
+    }
+  }
+}
 
 export async function updateMatchClosedStatus(matchId: string, isClosed: boolean) {
   const session = await auth();
@@ -222,7 +302,7 @@ export async function updateMatchClosedStatus(matchId: string, isClosed: boolean
             player1rank = await prisma.singleRank.create({
               data: {
                 userId: match?.player1Id ?? '',
-                score: 0, 
+                score: 0,
               },
             });
             console.log('New single rank created for player 1:', player1rank);
@@ -232,7 +312,7 @@ export async function updateMatchClosedStatus(matchId: string, isClosed: boolean
             player2rank = await prisma.singleRank.create({
               data: {
                 userId: match?.player2Id ?? '',
-                score: 0, 
+                score: 0,
               },
             });
             console.log('New single rank created for player 2:', player2rank);
@@ -241,7 +321,7 @@ export async function updateMatchClosedStatus(matchId: string, isClosed: boolean
           let player1points = player1rank.score ?? 0;
           let player2points = player2rank.score ?? 0;
 
-          for (const round of match!.rounds) 
+          for (const round of match!.rounds)
           {
             const res = await singleMode(player1rank.score ?? 0, player2rank.score ?? 0, round.player1Score ?? 0, round.player2Score ?? 0);
 
@@ -260,15 +340,15 @@ export async function updateMatchClosedStatus(matchId: string, isClosed: boolean
           let partnership1player1rank = await prisma.singleRank.findFirst({
             where: { userId: match?.partnership1?.player1Id ?? '' },
           });
-        
+
           let partnership1player2rank = await prisma.singleRank.findFirst({
             where: { userId: match?.partnership1?.player2Id ?? '' },
           });
-        
+
           let partnership2player1rank = await prisma.singleRank.findFirst({
             where: { userId: match?.partnership2?.player1Id ?? '' },
           });
-        
+
           let partnership2player2rank = await prisma.singleRank.findFirst({
             where: { userId: match?.partnership2?.player2Id ?? '' },
           });
@@ -276,16 +356,16 @@ export async function updateMatchClosedStatus(matchId: string, isClosed: boolean
           const partnership1rank = await prisma.doubleRank.findFirst({
             where: { partnershipId: match?.partnership1Id ?? '' },
           });
-        
+
           const partnership2rank = await prisma.doubleRank.findFirst({
             where: { partnershipId: match?.partnership2Id ?? '' },
           });
-         
+
           if (!partnership1player1rank) {
             partnership1player1rank = await prisma.singleRank.create({
               data: {
                 userId: match?.partnership1?.player1Id ?? '',
-                score: 0, 
+                score: 0,
               },
             });
             console.log('New single rank created for partnership 1 player 1:', partnership1player1rank);
@@ -295,7 +375,7 @@ export async function updateMatchClosedStatus(matchId: string, isClosed: boolean
             partnership1player2rank = await prisma.singleRank.create({
               data: {
                 userId: match?.partnership1?.player2Id ?? '',
-                score: 0, 
+                score: 0,
               },
             });
             console.log('New single rank created for partnership 1 player 2:', partnership1player2rank);
@@ -305,7 +385,7 @@ export async function updateMatchClosedStatus(matchId: string, isClosed: boolean
             partnership2player1rank = await prisma.singleRank.create({
               data: {
                 userId: match?.partnership2?.player1Id ?? '',
-                score: 0, 
+                score: 0,
               },
             });
             console.log('New single rank created for partnership 2 player 1:', partnership2player1rank);
@@ -315,7 +395,7 @@ export async function updateMatchClosedStatus(matchId: string, isClosed: boolean
             partnership2player2rank = await prisma.singleRank.create({
               data: {
                 userId: match?.partnership2?.player2Id ?? '',
-                score: 0, 
+                score: 0,
               },
             });
             console.log('New single rank created for partnership 2 player 2:', partnership2player2rank);
@@ -376,8 +456,8 @@ export async function updateMatchClosedStatus(matchId: string, isClosed: boolean
       throw new Error(`Match with ID ${matchId} not found`);
     }
 
+    await updatePlayerStats(matchId);
 
-    // Optionally, you can revalidate the path if needed
     revalidatePath(`/matches/${matchId}`);
   }
 }

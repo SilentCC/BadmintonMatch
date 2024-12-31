@@ -15,41 +15,8 @@ const defaultUserSelect = {
 
 export const userRouter = router({
   list: publicProcedure
-    .input(
-      z.object({
-        limit: z.number().min(1).max(100).nullish(),
-        cursor: z.string().nullish(),
-      }),
-    )
-    .query(async ({ input }) => {
-
-      const limit = input.limit ?? 50;
-      const { cursor } = input;
-
-      const items = await prisma.user.findMany({
-        select: defaultUserSelect,
-        take: limit + 1,
-        where: {},
-        cursor: cursor
-          ? {
-              id: cursor,
-          }
-          : undefined,
-        orderBy: {
-          createdAt: 'desc',
-        },
-      });
-
-      let nextCursor: typeof cursor | undefined = undefined;
-      if (items.length > limit) {
-        const nextItem = items.pop()!;
-        nextCursor = nextItem.id;
-      }
-
-      return {
-        items: items.reverse(),
-        nextCursor,
-      };
+    .query(async () => {
+      return prisma.user.findMany();
     }),
   byNameAndPassword: publicProcedure
     .input(
@@ -104,10 +71,10 @@ export const userRouter = router({
     )
     .mutation(async ({ input }) => {
       const { userId, avatarUrl } = input;
-      
+
       const updatedUser = await prisma.user.update({
         where: { id: userId },
-        data: { image: avatarUrl }, 
+        data: { image: avatarUrl },
         select: defaultUserSelect,
       });
 
@@ -122,10 +89,10 @@ export const userRouter = router({
     )
     .mutation(async ({ input }) => {
       const { userId, nickname } = input;
-      
+
       const updatedUser = await prisma.user.update({
         where: { id: userId },
-        data: { nickname }, 
+        data: { nickname },
         select: defaultUserSelect,
       });
 
@@ -141,7 +108,7 @@ export const userRouter = router({
     )
     .mutation(async ({ input }) => {
       const { userId, currentPassword, newPassword } = input;
-      
+
       // Find the user
       const user = await prisma.user.findUnique({
         where: { id: userId },

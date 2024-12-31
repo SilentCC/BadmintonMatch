@@ -40,6 +40,7 @@ model User {
   Authenticator Authenticator[]
   matches       Match[]         @relation("Player1Matches")
   matches2      Match[]         @relation("Player2Matches")
+  stats         PlayerStats?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -72,7 +73,7 @@ model Partnership {
 
   // Ensure no duplicate partnerships
   @@unique([player1Id, player2Id])
-  
+
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 }
@@ -83,7 +84,7 @@ model DoubleRank {
   rank           Int          @default(0)
   partnershipId  String
   partnership    Partnership  @relation(fields: [partnershipId], references: [id])
-  
+
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
@@ -152,31 +153,31 @@ enum MatchType {
 model Match {
   id             String       @id @default(cuid())
   type           MatchType
-  
+
   // Singles match fields
   player1Id      String?
   player1        User?        @relation("Player1Matches", fields: [player1Id], references: [id])
   player2Id      String?
   player2        User?        @relation("Player2Matches", fields: [player2Id], references: [id])
-  
+
   // Doubles match fields
   partnership1Id String?
   partnership1   Partnership?  @relation("Partnership1Matches", fields: [partnership1Id], references: [id])
   partnership2Id String?
   partnership2   Partnership?  @relation("Partnership2Matches", fields: [partnership2Id], references: [id])
-  
+
   // Match details
   rounds         MatchRound[]
-  
+
   // Tournament or event information
   tournamentName String?
   eventName      String?
-  
+
   // Match metadata
   matchDate      DateTime     @default(now())
   location       String?
   closed         Boolean       @default(false)
-  
+
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
@@ -188,21 +189,34 @@ model MatchRound {
   id             String       @id @default(cuid())
   matchId        String
   match          Match        @relation(fields: [matchId], references: [id], onDelete: Cascade)
-  
+
   // Scoring details for singles
   player1Score   Int?
   player2Score   Int?
-  
+
   // Scoring details for doubles
   partnership1Score Int?
   partnership2Score Int?
-  
+
   // Which round/set this score represents
   roundNumber    Int          @default(1)
-  
+
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
   @@unique([matchId, roundNumber])
   @@index([matchId])
+}
+
+model PlayerStats {
+  id           String   @id @default(cuid())
+  player       User     @relation(fields: [playerId], references: [id])
+  playerId     String   @unique // One stats record per player
+  totalMatches Int      @default(0)
+  wonMatches   Int      @default(0)
+  lostMatches  Int      @default(0)
+  winPercentage Float   @default(0)
+  updatedAt    DateTime @default(now()) @updatedAt
+
+  @@index([playerId])
 }
