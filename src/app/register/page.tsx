@@ -106,6 +106,7 @@ const addRank = trpc.rank.updateSingleScore.useMutation({
         name: data.name,
         nickname: data.nickname,
         password: data.password,
+        image: 'https://cs110032000d3024da4.blob.core.windows.net/avatars/badmintonplayer.png'
       });
 
       // If avatar exists, upload it
