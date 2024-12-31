@@ -9,7 +9,7 @@ jobs:
       postgres:
         image: postgres
         env:
-          POSTGRES_DATABASE: trpcdb
+          POSTGRES_DATABASE: next-prisma-starter-new
           POSTGRES_USER: postgres
           POSTGRES_HOST_AUTH_METHOD: trust
         ports:
