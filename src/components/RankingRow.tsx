@@ -48,7 +48,7 @@ export function RankingRow({ rank, index }: RankingRowProps) {
           <div className="avatar">
             <div className="mask mask-squircle w-12 h-12">
               <img
-                src={rank.user.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'}
+                src={rank.user.image ?? 'https://cs110032000d3024da4.blob.core.windows.net/avatars/badmintonplayer.png'}
                 alt={`${rank.user.name}'s avatar`}
                 className="object-cover"
               />

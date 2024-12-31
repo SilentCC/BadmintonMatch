@@ -30,6 +30,7 @@ export default async function MatchesPage() {
     redirect("/login");
   }
 
+  const defaultAvatar = 'https://cs110032000d3024da4.blob.core.windows.net/avatars/badmintonplayer.png';
   // Get matches from the last month
   const oneMonthAgo = new Date();
   oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
@@ -117,7 +118,7 @@ export default async function MatchesPage() {
                         <div className="avatar shrink-0">
                           <div className="mask mask-squircle w-12 h-12">
                             <img
-                              src={match.player1.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'}
+                              src={match.player1.image ?? defaultAvatar}
                               alt={`${match.player1.name}'s avatar`}
                               className="object-cover"
                             />
@@ -141,7 +142,7 @@ export default async function MatchesPage() {
                         <div className="avatar shrink-0">
                           <div className="mask mask-squircle w-12 h-12">
                             <img
-                              src={match.player2.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'}
+                              src={match.player2.image ?? defaultAvatar}
                               alt={`${match.player2.name}'s avatar`}
                               className="object-cover"
                             />
@@ -167,7 +168,7 @@ export default async function MatchesPage() {
                         <div className="avatar">
                           <div className="mask mask-squircle w-12 h-12">
                             <img
-                              src={match.partnership1?.player1.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'}
+                              src={match.partnership1?.player1.image ?? defaultAvatar}
                               alt={`${match.partnership1?.player1.name}'s avatar`}
                               className="object-cover"
                             />
@@ -176,7 +177,7 @@ export default async function MatchesPage() {
                         <div className="avatar">
                           <div className="mask mask-squircle w-12 h-12">
                             <img
-                              src={match.partnership1?.player2.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'}
+                              src={match.partnership1?.player2.image ?? defaultAvatar}
                               alt={`${match.partnership1?.player2.name}'s avatar`}
                               className="object-cover"
                             />
@@ -202,7 +203,7 @@ export default async function MatchesPage() {
                         <div className="avatar">
                           <div className="mask mask-squircle w-12 h-12">
                             <img
-                              src={match.partnership2?.player1.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'}
+                              src={match.partnership2?.player1.image ?? defaultAvatar}
                               alt={`${match.partnership2?.player1.name}'s avatar`}
                               className="object-cover"
                             />
@@ -211,7 +212,7 @@ export default async function MatchesPage() {
                         <div className="avatar">
                           <div className="mask mask-squircle w-12 h-12">
                             <img
-                              src={match.partnership2?.player2.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'}
+                              src={match.partnership2?.player2.image ?? defaultAvatar}
                               alt={`${match.partnership2?.player2.name}'s avatar`}
                               className="object-cover"
                             />
@@ -299,7 +300,7 @@ export default async function MatchesPage() {
                         <div className="avatar shrink-0">
                           <div className="mask mask-squircle w-12 h-12">
                             <img
-                              src={match.player1.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'}
+                              src={match.player1.image ?? defaultAvatar}
                               alt={`${match.player1.name}'s avatar`}
                               className="object-cover"
                             />
@@ -323,7 +324,7 @@ export default async function MatchesPage() {
                         <div className="avatar shrink-0">
                           <div className="mask mask-squircle w-12 h-12">
                             <img
-                              src={match.player2.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'}
+                              src={match.player2.image ?? defaultAvatar}
                               alt={`${match.player2.name}'s avatar`}
                               className="object-cover"
                             />
@@ -349,7 +350,7 @@ export default async function MatchesPage() {
                         <div className="avatar">
                           <div className="mask mask-squircle w-12 h-12">
                             <img
-                              src={match.partnership1?.player1.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'}
+                              src={match.partnership1?.player1.image ?? defaultAvatar}
                               alt={`${match.partnership1?.player1.name}'s avatar`}
                               className="object-cover"
                             />
@@ -358,7 +359,7 @@ export default async function MatchesPage() {
                         <div className="avatar">
                           <div className="mask mask-squircle w-12 h-12">
                             <img
-                              src={match.partnership1?.player2.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'}
+                              src={match.partnership1?.player2.image ?? defaultAvatar}
                               alt={`${match.partnership1?.player2.name}'s avatar`}
                               className="object-cover"
                             />
@@ -384,7 +385,7 @@ export default async function MatchesPage() {
                         <div className="avatar">
                           <div className="mask mask-squircle w-12 h-12">
                             <img
-                              src={match.partnership2?.player1.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'}
+                              src={match.partnership2?.player1.image ?? defaultAvatar}
                               alt={`${match.partnership2?.player1.name}'s avatar`}
                               className="object-cover"
                             />
@@ -393,7 +394,7 @@ export default async function MatchesPage() {
                         <div className="avatar">
                           <div className="mask mask-squircle w-12 h-12">
                             <img
-                              src={match.partnership2?.player2.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'}
+                              src={match.partnership2?.player2.image ?? defaultAvatar}
                               alt={`${match.partnership2?.player2.name}'s avatar`}
                               className="object-cover"
                             />

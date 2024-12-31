@@ -14,7 +14,7 @@ export default async function UserAvatar({ user: propUser }: UserAvatarProps = {
     return <SignInButton />;
   }
 
-  const defaultAvatar = 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp';
+  const defaultAvatar = 'https://cs110032000d3024da4.blob.core.windows.net/avatars/badmintonplayer.png';
   const avatarUrl = user.image ?? defaultAvatar;
 
   return (

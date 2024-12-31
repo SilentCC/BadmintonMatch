@@ -15,6 +15,7 @@ export async function DoublePlayerRankings() {
     },
   });
 
+  const defaultAvatar = 'https://cs110032000d3024da4.blob.core.windows.net/avatars/badmintonplayer.png';
   const sortedRanks = [...ranks].sort((a, b) => b.score - a.score);
 
   return (
@@ -57,7 +58,7 @@ export async function DoublePlayerRankings() {
                             {rank.partnership.nickname}
                           </div>
                           <div className="text-sm text-base-content/70">
-                            {rank.partnership.player1.nickname ?? rank.partnership.player1.name} 
+                            {rank.partnership.player1.nickname ?? rank.partnership.player1.name}
                             {' & '}
                             {rank.partnership.player2.nickname ?? rank.partnership.player2.name}
                           </div>
@@ -67,9 +68,9 @@ export async function DoublePlayerRankings() {
                           <div className="flex items-center space-x-3">
                             <div className="avatar">
                               <div className="mask mask-squircle w-12 h-12">
-                                <img 
-                                  src={rank.partnership.player1.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'} 
-                                  alt={`${rank.partnership.player1.name}'s avatar`} 
+                                <img
+                                  src={rank.partnership.player1.image ?? defaultAvatar}
+                                  alt={`${rank.partnership.player1.name}'s avatar`}
                                   className="object-cover"
                                 />
                               </div>
@@ -87,9 +88,9 @@ export async function DoublePlayerRankings() {
                           <div className="flex items-center space-x-3">
                             <div className="avatar">
                               <div className="mask mask-squircle w-12 h-12">
-                                <img 
-                                  src={rank.partnership.player2.image ?? 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'} 
-                                  alt={`${rank.partnership.player2.name}'s avatar`} 
+                                <img
+                                  src={rank.partnership.player2.image ?? defaultAvatar }
+                                  alt={`${rank.partnership.player2.name}'s avatar`}
                                   className="object-cover"
                                 />
                               </div>
