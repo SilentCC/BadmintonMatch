@@ -3,7 +3,7 @@ import UserAvatar from './UserAvatar'
 
 export default function Header() {
   return (
-    <div className="navbar bg-slate-800 text-white flex justify-between">
+    <div className="navbar bg-slate-800 text-white flex justify-between relative z-50">
       <div className="navbar-start">
         <div className="dropdown">
           <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
@@ -11,7 +11,7 @@ export default function Header() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h8m-8 6h16" />
             </svg>
           </div>
-          <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-slate-800 rounded-box w-52">
+          <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[100] p-2 shadow bg-slate-800 rounded-box w-52">
             <li>
               <Link href="/single-player-rank" className="text-white hover:bg-slate-700">
                 Single Player Rank
