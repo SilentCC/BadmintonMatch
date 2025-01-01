@@ -54,11 +54,11 @@ export function YearStarsHistory({ years, yearStars }: YearStarsHistoryProps) {
               </h2>
 
               {starsForYear.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
                   {starsForYear.map((star) => (
                     <div
                       key={star.id}
-                      className={`flex items-center gap-6 p-6 rounded-lg transition-all duration-300 ${medalStyles[star.rank as 1 | 2 | 3]}`}
+                      className={`flex items-center gap-5 p-5 rounded-lg transition-all duration-300 ${medalStyles[star.rank as 1 | 2 | 3]}`}
                     >
                       <div className="flex items-center justify-center w-16 h-16">
                         <EmojiEventsIcon
@@ -67,7 +67,7 @@ export function YearStarsHistory({ years, yearStars }: YearStarsHistoryProps) {
                       </div>
                       <div className="flex items-center gap-4">
                         <div className="avatar">
-                          <div className="mask mask-squircle w-14 h-14">
+                          <div className="mask mask-squircle w-12 h-12">
                             <img
                               src={star.user.image ?? defaultAvatar}
                               alt={star.user.name ?? 'Player avatar'}
