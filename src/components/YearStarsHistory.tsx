@@ -33,9 +33,9 @@ export function YearStarsHistory({ years, yearStars }: YearStarsHistoryProps) {
   };
 
   const trophySizes = {
-    1: 'w-10 h-10',
-    2: 'w-9 h-9',
-    3: 'w-8 h-8'
+    1: 'w-16 h-16',
+    2: 'w-14 h-14',
+    3: 'w-12 h-12'
   };
 
   const defaultAvatar = 'https://cs110032000d3024da4.blob.core.windows.net/avatars/badmintonplayer.png';
@@ -58,16 +58,16 @@ export function YearStarsHistory({ years, yearStars }: YearStarsHistoryProps) {
                   {starsForYear.map((star) => (
                     <div
                       key={star.id}
-                      className={`flex items-center gap-4 p-4 rounded-lg transition-all duration-300 ${medalStyles[star.rank as 1 | 2 | 3]}`}
+                      className={`flex items-center gap-6 p-6 rounded-lg transition-all duration-300 ${medalStyles[star.rank as 1 | 2 | 3]}`}
                     >
-                      <div className="flex items-center justify-center w-12 h-12">
+                      <div className="flex items-center justify-center w-16 h-16">
                         <EmojiEventsIcon
                           className={`${trophyColors[star.rank as 1 | 2 | 3]} ${trophySizes[star.rank as 1 | 2 | 3]} transition-transform hover:scale-110`}
                         />
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-4">
                         <div className="avatar">
-                          <div className="mask mask-squircle w-12 h-12">
+                          <div className="mask mask-squircle w-14 h-14">
                             <img
                               src={star.user.image ?? defaultAvatar}
                               alt={star.user.name ?? 'Player avatar'}
@@ -76,10 +76,10 @@ export function YearStarsHistory({ years, yearStars }: YearStarsHistoryProps) {
                           </div>
                         </div>
                         <div>
-                          <div className="font-bold">
+                          <div className="font-bold text-lg">
                             {star.user.nickname ?? star.user.name}
                           </div>
-                          <div className="text-sm opacity-70">
+                          <div className="text-base opacity-70">
                             Score: {star.score}
                           </div>
                         </div>
