@@ -28,6 +28,11 @@ export default function Header() {
               </Link>
             </li>
             <li>
+              <Link href="/year-stars" className="text-white hover:bg-slate-700">
+                年度之星
+              </Link>
+            </li>
+            <li>
               <Link href="/points-mall" className="text-white hover:bg-slate-700">
                 积分商城
               </Link>
@@ -51,6 +56,11 @@ export default function Header() {
           <li>
             <Link href="/matches" className="text-white hover:bg-slate-700 rounded-lg">
               Matches
+            </Link>
+          </li>
+          <li>
+            <Link href="/year-stars" className="text-white hover:bg-slate-700 rounded-lg">
+              年度之星
             </Link>
           </li>
           <li>

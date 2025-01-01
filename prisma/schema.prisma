@@ -41,6 +41,7 @@ model User {
   matches       Match[]         @relation("Player1Matches")
   matches2      Match[]         @relation("Player2Matches")
   stats         PlayerStats?
+  yearStars     YearStar[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -219,4 +220,18 @@ model PlayerStats {
   updatedAt    DateTime @default(now()) @updatedAt
 
   @@index([playerId])
+}
+
+model YearStar {
+  id        String   @id @default(cuid())
+  year      Int
+  rank      Int      // 1, 2, or 3
+  score     Int      // Final score of that year
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([year, rank])  // Ensure one rank per year
+  @@index([year])        // For efficient year-based queries
 }
