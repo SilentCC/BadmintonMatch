@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { auth } from '~/auth';
 import { prisma } from '~/server/prisma';
-import { doubleMode, singleMode, updateDoubleRank, updateSingleRank } from './matchScoring';
+import { doubleMode, singleMode, updateDoubleRank, updateSingleRank, refreshDoubleRank, refreshSingleRank } from './matchScoring';
 
 export async function updateMatchRound(roundId: string, team1Points: number, team2Points: number) {
   const session = await auth();
@@ -449,6 +449,9 @@ export async function updateMatchClosedStatus(matchId: string, isClosed: boolean
 
           await updateDoubleRank(match?.partnership1Id ?? '', partnership1points);
           await updateDoubleRank(match?.partnership2Id ?? '', partnership2points);
+
+          await refreshSingleRank();
+          await refreshDoubleRank();
       }
     }
 
