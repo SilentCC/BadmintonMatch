@@ -104,6 +104,20 @@ export async function updateSingleRank(userId: string, points: number) {
   }
 }
 
+export async function refreshSingleRank(){
+  const allPlayers = await prisma.singleRank.findMany({
+    orderBy: { score: 'desc' },
+  });
+
+  // Update ranks for all players
+  for (let i = 0; i < allPlayers.length; i++) {
+    await prisma.singleRank.updateMany({
+      where: { userId: allPlayers[i]?.userId },
+      data: { rank: i + 1 }, // rank starts from 1
+    });
+  }
+}
+
 export async function updateDoubleRank(partnershipId: string, points: number) {
   const currentDoubleRank = await prisma.doubleRank.findFirst({
     where: { partnershipId },
@@ -115,6 +129,20 @@ export async function updateDoubleRank(partnershipId: string, points: number) {
     await prisma.doubleRank.updateMany({
       where: { partnershipId },
       data: { score: newScore },
+    });
+  }
+}
+
+export async function refreshDoubleRank(){
+  const allPartnerships = await prisma.doubleRank.findMany({
+    orderBy: { score: 'desc' },
+  });
+
+  // Update ranks for all partnerships
+  for (let i = 0; i < allPartnerships.length; i++) {
+    await prisma.doubleRank.updateMany({
+      where: { partnershipId: allPartnerships[i]?.partnershipId },
+      data: { rank: i + 1 }, // rank starts from 1
     });
   }
 }
