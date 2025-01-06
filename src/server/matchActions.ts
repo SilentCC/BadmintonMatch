@@ -449,9 +449,6 @@ export async function updateMatchClosedStatus(matchId: string, isClosed: boolean
 
           await updateDoubleRank(match?.partnership1Id ?? '', partnership1points);
           await updateDoubleRank(match?.partnership2Id ?? '', partnership2points);
-
-          await refreshSingleRank();
-          await refreshDoubleRank();
       }
     }
 
