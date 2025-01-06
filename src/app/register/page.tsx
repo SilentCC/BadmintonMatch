@@ -66,7 +66,7 @@ const addRank = trpc.rank.updateSingleScore.useMutation({
        // Call the TRPC mutation to create a new SinglePlayerRanking
        addRank.mutate({
         userId: data.id,
-        score: 0, // Set the initial score to 0
+        score: 200, // Set the initial score to 0
        });
 
     },
