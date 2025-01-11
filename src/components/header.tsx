@@ -2,6 +2,7 @@ import Link from 'next/link'
 import UserAvatar from './UserAvatar'
 
 export default function Header() {
+
   return (
     <div className="navbar bg-slate-800 text-white flex justify-between relative z-50">
       <div className="navbar-start">
@@ -25,6 +26,11 @@ export default function Header() {
             <li>
               <Link href="/matches" className="text-white hover:bg-slate-700">
                 Matches
+              </Link>
+            </li>
+            <li>
+              <Link href="/match-maker" className="text-white hover:bg-slate-700">
+                Generate Matches
               </Link>
             </li>
             <li>
@@ -56,6 +62,11 @@ export default function Header() {
           <li>
             <Link href="/matches" className="text-white hover:bg-slate-700 rounded-lg">
               Matches
+            </Link>
+          </li>
+          <li>
+            <Link href="/match-maker" className="text-white hover:bg-slate-700 rounded-lg">
+              Generate Matches
             </Link>
           </li>
           <li>

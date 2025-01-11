@@ -5,6 +5,16 @@ import { z } from 'zod';
 import { auth } from '~/auth';
 import { prisma } from '~/server/prisma';
 import { doubleMode, singleMode, updateDoubleRank, updateSingleRank} from './matchScoring';
+import { User } from "@prisma/client";
+
+interface DoubleMatch
+{
+    partnership1Player1: User;
+    partnership1Player2: User;
+
+    partnership2Player1: User;
+    partnership2Player2: User;
+}
 
 export async function updateMatchRound(roundId: string, team1Points: number, team2Points: number) {
   const session = await auth();
@@ -460,4 +470,104 @@ export async function updateMatchClosedStatus(matchId: string, isClosed: boolean
 
     revalidatePath(`/matches/${matchId}`);
   }
+}
+
+async function calculatePlayerStrength(user: User): Promise<number> {
+  const userRank = await prisma.singleRank.findFirst({
+    where: { userId: user.id }
+  });
+
+  return userRank?.score ?? 200; // Default rating if no rank exists
+}
+
+async function calculateTeamStrength([player1, player2]: [User, User]): Promise<number> {
+  const [player1Strength, player2Strength] = await Promise.all([
+    calculatePlayerStrength(player1),
+    calculatePlayerStrength(player2)
+  ]);
+  return (player1Strength + player2Strength) / 2;
+}
+
+
+export async function generateBalancedDoubleMatches(players: User[]): Promise<DoubleMatch[]> {
+  if (players.length < 4 || players.length % 4 !== 0) {
+    throw new Error("Number of players must be a multiple of 4");
+  }
+
+  // Sort players by strength
+  const playerStrengths = await Promise.all(
+    players.map(async player => ({
+      player,
+      strength: await calculatePlayerStrength(player)
+    }))
+  );
+
+  const sortedPlayers = playerStrengths
+    .sort((a, b) => b.strength - a.strength)
+    .map(p => p.player);
+
+  const matches: DoubleMatch[] = [];
+  const numMatches = players.length / 4;
+
+  // Create matches with different strategies
+  for (let i = 0; i < numMatches; i++) {
+    const availablePlayers = sortedPlayers.slice(i * 4, (i + 1) * 4) as [User, User, User, User];
+
+    // Validate all players have required data
+    if (!availablePlayers.every(p => p.id && p.name && typeof p.name === 'string')) {
+      throw new Error("All players must have id and non-null name");
+    }
+
+    // Randomly choose match type (0: strong vs strong, 1: weak vs weak, 2: mixed)
+    const matchType = Math.floor(Math.random() * 3);
+
+    let match: DoubleMatch;
+
+    switch (matchType) {
+      case 0: // Strong vs Strong
+        match = {
+          partnership1Player1: availablePlayers[0],
+          partnership1Player2: availablePlayers[3],
+          partnership2Player1: availablePlayers[1],
+          partnership2Player2: availablePlayers[2]
+        };
+        break;
+
+      case 1: // Weak vs Weak
+        match = {
+          partnership1Player1: availablePlayers[0],
+          partnership1Player2: availablePlayers[2],
+          partnership2Player1: availablePlayers[1],
+          partnership2Player2: availablePlayers[3]
+        };
+        break;
+
+      default: // Mixed (Strong+Weak vs Strong+Weak)
+        match = {
+          partnership1Player1: availablePlayers[0],
+          partnership1Player2: availablePlayers[3],
+          partnership2Player1: availablePlayers[1],
+          partnership2Player2: availablePlayers[2]
+        };
+    }
+
+    // Validate team strength difference
+    const team1Strength = await calculateTeamStrength([match.partnership1Player1, match.partnership1Player2]);
+    const team2Strength = await calculateTeamStrength([match.partnership2Player1, match.partnership2Player2]);
+
+    // If teams are too unbalanced, adjust to make them more even
+    if (Math.abs(team1Strength - team2Strength) > 200) { // Adjust this threshold as needed
+      match = {
+        partnership1Player1: availablePlayers[0],
+        partnership1Player2: availablePlayers[3],
+        partnership2Player1: availablePlayers[1],
+        partnership2Player2: availablePlayers[2]
+      };
+    }
+
+    matches.push(match);
+  }
+
+  // Shuffle matches order
+  return matches.sort(() => Math.random() - 0.5);
 }
