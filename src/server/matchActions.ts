@@ -480,94 +480,148 @@ async function calculatePlayerStrength(user: User): Promise<number> {
   return userRank?.score ?? 200; // Default rating if no rank exists
 }
 
-async function calculateTeamStrength([player1, player2]: [User, User]): Promise<number> {
-  const [player1Strength, player2Strength] = await Promise.all([
-    calculatePlayerStrength(player1),
-    calculatePlayerStrength(player2)
-  ]);
-  return (player1Strength + player2Strength) / 2;
-}
-
-
 export async function generateBalancedDoubleMatches(players: User[]): Promise<DoubleMatch[]> {
-  if (players.length < 4 || players.length % 4 !== 0) {
-    throw new Error("Number of players must be a multiple of 4");
+  if (players.length < 4) {
+    throw new Error('Need at least 4 players')
+  }
+
+  // Calculate strength for each player
+  const playerStrengths = new Map<string, number>()
+  for (const player of players) {
+    playerStrengths.set(player.id, await calculatePlayerStrength(player))
   }
 
   // Sort players by strength
-  const playerStrengths = await Promise.all(
-    players.map(async player => ({
-      player,
-      strength: await calculatePlayerStrength(player)
-    }))
-  );
+  const sortedByStrength = [...players].sort((a, b) =>
+    (playerStrengths.get(b.id) ?? 0) - (playerStrengths.get(a.id) ?? 0)
+  )
 
-  const sortedPlayers = playerStrengths
-    .sort((a, b) => b.strength - a.strength)
-    .map(p => p.player);
+  // Track appearances
+  const appearances = new Map<string, number>()
+  players.forEach(p => appearances.set(p.id, 0))
 
-  const matches: DoubleMatch[] = [];
-  const numMatches = players.length / 4;
+  const matches: DoubleMatch[] = []
+  const minMatches = Math.max(4, Math.ceil(players.length / 2))
+  let attempts = 0
+  const maxAttempts = 100 // Prevent infinite loop
 
-  // Create matches with different strategies
-  for (let i = 0; i < numMatches; i++) {
-    const availablePlayers = sortedPlayers.slice(i * 4, (i + 1) * 4) as [User, User, User, User];
+  // Helper function to get random player from range
+  const getRandomPlayerFromRange = (start: number, end: number, exclude: Set<string>) => {
+    // First try with appearance limit
+    let availablePlayers = sortedByStrength.slice(start, end)
+      .filter(p => !exclude.has(p.id) && (appearances.get(p.id) ?? 0) < 2)
 
-    // Validate all players have required data
-    if (!availablePlayers.every(p => p.id && p.name && typeof p.name === 'string')) {
-      throw new Error("All players must have id and non-null name");
+    // If no players found, try again without appearance limit
+    if (availablePlayers.length === 0) {
+      availablePlayers = sortedByStrength.slice(start, end)
+        .filter(p => !exclude.has(p.id))
     }
 
-    // Randomly choose match type (0: strong vs strong, 1: weak vs weak, 2: mixed)
-    const matchType = Math.floor(Math.random() * 3);
-
-    let match: DoubleMatch;
-
-    switch (matchType) {
-      case 0: // Strong vs Strong
-        match = {
-          partnership1Player1: availablePlayers[0],
-          partnership1Player2: availablePlayers[3],
-          partnership2Player1: availablePlayers[1],
-          partnership2Player2: availablePlayers[2]
-        };
-        break;
-
-      case 1: // Weak vs Weak
-        match = {
-          partnership1Player1: availablePlayers[0],
-          partnership1Player2: availablePlayers[2],
-          partnership2Player1: availablePlayers[1],
-          partnership2Player2: availablePlayers[3]
-        };
-        break;
-
-      default: // Mixed (Strong+Weak vs Strong+Weak)
-        match = {
-          partnership1Player1: availablePlayers[0],
-          partnership1Player2: availablePlayers[3],
-          partnership2Player1: availablePlayers[1],
-          partnership2Player2: availablePlayers[2]
-        };
+    // If still no players, expand the range
+    if (availablePlayers.length === 0) {
+      availablePlayers = sortedByStrength
+        .filter(p => !exclude.has(p.id))
     }
 
-    // Validate team strength difference
-    const team1Strength = await calculateTeamStrength([match.partnership1Player1, match.partnership1Player2]);
-    const team2Strength = await calculateTeamStrength([match.partnership2Player1, match.partnership2Player2]);
-
-    // If teams are too unbalanced, adjust to make them more even
-    if (Math.abs(team1Strength - team2Strength) > 200) { // Adjust this threshold as needed
-      match = {
-        partnership1Player1: availablePlayers[0],
-        partnership1Player2: availablePlayers[3],
-        partnership2Player1: availablePlayers[1],
-        partnership2Player2: availablePlayers[2]
-      };
-    }
-
-    matches.push(match);
+    return availablePlayers[Math.floor(Math.random() * availablePlayers.length)]
   }
 
-  // Shuffle matches order
-  return matches.sort(() => Math.random() - 0.5);
+  // Helper function to try creating a match
+  const tryCreateMatch = (matchType: number): DoubleMatch | null => {
+    const usedInThisMatch = new Set<string>()
+
+    if (matchType === 0) { // Strong vs Strong
+      const strongCount = Math.max(4, Math.floor(sortedByStrength.length / 3))
+      const p1 = getRandomPlayerFromRange(0, strongCount, usedInThisMatch)
+      if (!p1) return null
+      usedInThisMatch.add(p1.id)
+
+      const p2 = getRandomPlayerFromRange(0, strongCount, usedInThisMatch)
+      if (!p2) return null
+      usedInThisMatch.add(p2.id)
+
+      const p3 = getRandomPlayerFromRange(0, strongCount, usedInThisMatch)
+      if (!p3) return null
+      usedInThisMatch.add(p3.id)
+
+      const p4 = getRandomPlayerFromRange(0, strongCount, usedInThisMatch)
+      if (!p4) return null
+
+      return {
+        partnership1Player1: p1,
+        partnership1Player2: p2,
+        partnership2Player1: p3,
+        partnership2Player2: p4
+      }
+    }
+
+    if (matchType === 1) { // Mixed
+      const strongCount = Math.floor(sortedByStrength.length / 3)
+      const weakStart = Math.max(strongCount, sortedByStrength.length - strongCount)
+
+      const p1 = getRandomPlayerFromRange(0, strongCount, usedInThisMatch)
+      if (!p1) return null
+      usedInThisMatch.add(p1.id)
+
+      const p2 = getRandomPlayerFromRange(weakStart, sortedByStrength.length, usedInThisMatch)
+      if (!p2) return null
+      usedInThisMatch.add(p2.id)
+
+      const p3 = getRandomPlayerFromRange(0, strongCount, usedInThisMatch)
+      if (!p3) return null
+      usedInThisMatch.add(p3.id)
+
+      const p4 = getRandomPlayerFromRange(weakStart, sortedByStrength.length, usedInThisMatch)
+      if (!p4) return null
+
+      return {
+        partnership1Player1: p1,
+        partnership1Player2: p2,
+        partnership2Player1: p3,
+        partnership2Player2: p4
+      }
+    }
+
+    // Balanced (Middle range players)
+    const middleStart = Math.floor(sortedByStrength.length / 4)
+    const middleEnd = sortedByStrength.length - middleStart
+
+    const players = Array(4).fill(null).map(() => {
+      const p = getRandomPlayerFromRange(middleStart, middleEnd, usedInThisMatch)
+      if (p) usedInThisMatch.add(p.id)
+      return p
+    })
+
+    if (players.every(p => p !== null)) {
+      return {
+        partnership1Player1: players[0]!,
+        partnership1Player2: players[1]!,
+        partnership2Player1: players[2]!,
+        partnership2Player2: players[3]!
+      }
+    }
+
+    return null
+  }
+
+  while (matches.length < minMatches && attempts < maxAttempts) {
+    attempts++
+    const matchType = Math.floor(Math.random() * 3)
+    const match = tryCreateMatch(matchType)
+
+    if (match) {
+      matches.push(match)
+      // Update appearances
+      appearances.set(match.partnership1Player1.id, (appearances.get(match.partnership1Player1.id) ?? 0) + 1)
+      appearances.set(match.partnership1Player2.id, (appearances.get(match.partnership1Player2.id) ?? 0) + 1)
+      appearances.set(match.partnership2Player1.id, (appearances.get(match.partnership2Player1.id) ?? 0) + 1)
+      appearances.set(match.partnership2Player2.id, (appearances.get(match.partnership2Player2.id) ?? 0) + 1)
+    }
+  }
+
+  if (matches.length === 0) {
+    throw new Error('Unable to generate valid matches')
+  }
+
+  return matches
 }
