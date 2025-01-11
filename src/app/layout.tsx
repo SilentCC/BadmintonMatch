@@ -20,10 +20,10 @@ export default function RootLayout({
            <body>
                <Header />
                <Provider>{children}</Provider>
-               <Toaster 
-                 position="top-right" 
-                 richColors 
-                 closeButton 
+               <Toaster
+                 position="top-right"
+                 richColors
+                 closeButton
                />
            </body>
         </html>
