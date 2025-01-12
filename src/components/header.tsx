@@ -43,6 +43,11 @@ export default function Header() {
                 积分商城
               </Link>
             </li>
+            <li>
+              <Link href="/my-matches" className="text-white hover:bg-slate-700">
+                My Matches
+              </Link>
+            </li>
           </ul>
         </div>
         <Link href="/" className="btn btn-ghost text-xl text-white hover:bg-slate-700">Badminton</Link>
@@ -77,6 +82,11 @@ export default function Header() {
           <li>
             <Link href="/points-mall" className="text-white hover:bg-slate-700 rounded-lg">
               积分商城
+            </Link>
+          </li>
+          <li>
+            <Link href="/my-matches" className="text-white hover:bg-slate-700 rounded-lg">
+              My Matches
             </Link>
           </li>
         </ul>
