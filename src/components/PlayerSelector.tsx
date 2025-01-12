@@ -36,33 +36,33 @@ export default function PlayerSelector({ selectedPlayers, onPlayersChange, avail
       <h3 className="text-lg font-semibold mb-4">Players Pool</h3>
 
       <div className="form-control gap-2">
-        <div className="dropdown dropdown-bottom w-full">
+        <div className="relative w-full">
           <button
+            type="button"
             className="btn btn-outline w-full text-left justify-start"
             onClick={() => setIsOpen(!isOpen)}
           >
             Select a player
           </button>
           {isOpen && (
-            <ul className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full max-h-60 overflow-auto z-50 mt-1">
+            <div className="absolute top-full left-0 right-0 mt-1 bg-base-100 rounded-box shadow-lg z-50 max-h-60 overflow-auto">
               {availablePlayers
                 .filter(player => !selectedPlayers.some(sp => sp.id === player.id))
                 .map(player => (
-                  <li key={player.id}>
-                    <button
-                      onClick={() => addPlayer(player)}
-                      className="flex items-center gap-2 p-2"
-                    >
-                      <img
-                        src={player.image ?? defaultAvatar}
-                        alt={player.name ?? ''}
-                        className="w-8 h-8 rounded-full"
-                      />
-                      <span>{player.name}</span>
-                    </button>
-                  </li>
+                  <button
+                    key={player.id}
+                    onClick={() => addPlayer(player)}
+                    className="flex items-center gap-2 p-3 w-full hover:bg-base-200 transition-colors"
+                  >
+                    <img
+                      src={player.image ?? defaultAvatar}
+                      alt={player.name ?? ''}
+                      className="w-8 h-8 rounded-full"
+                    />
+                    <span>{player.name}</span>
+                  </button>
                 ))}
-            </ul>
+            </div>
           )}
         </div>
 
