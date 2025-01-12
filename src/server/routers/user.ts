@@ -135,4 +135,32 @@ export const userRouter = router({
 
       return updatedUser;
     }),
+  updateEmail: publicProcedure
+    .input(z.object({
+      userId: z.string(),
+      email: z.string().email(),
+    }))
+    .mutation(async ({ input }) => {
+      const { userId, email } = input;
+
+      // Check if the user exists
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+      });
+
+      if (!user) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'User not found',
+        });
+      }
+
+      // Update the email
+      const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: { email },
+      });
+
+      return updatedUser;
+    }),
 });

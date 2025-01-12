@@ -5,6 +5,7 @@ import { AuthError } from '@auth/core/errors';
 import { AiFillGithub } from 'react-icons/ai';
 import { AiFillGoogleCircle } from 'react-icons/ai';
 import { AiFillTwitterCircle } from 'react-icons/ai';
+import Link from 'next/link';
 
 export default function SignIn({ searchParams }: { searchParams: any }) {
   const errorMessage = searchParams.error || null;
@@ -13,7 +14,7 @@ export default function SignIn({ searchParams }: { searchParams: any }) {
       <div className="card w-96 bg-base-100 shadow-xl">
         <div className="card-body">
           <h2 className="card-title justify-center text-2xl font-bold">Login</h2>
-          <form 
+          <form
             className="space-y-4"
             action={async (formData) => {
               'use server';
@@ -28,7 +29,7 @@ export default function SignIn({ searchParams }: { searchParams: any }) {
               } catch (error) {
                 console.log(error);
                 console.log('1111');
-                
+
                 if (error instanceof AuthError) {
                   if (error.cause?.err instanceof Error) {
                     errorMessage = error.cause.err.message;
@@ -73,6 +74,9 @@ export default function SignIn({ searchParams }: { searchParams: any }) {
             <div className="form-control w-full">
               <label className="label">
                 <span className="label-text">Password</span>
+                <Link href="/forgot-password" className="label-text-alt link link-primary">
+                  Forgot password?
+                </Link>
               </label>
               <input
                 type="password"

@@ -27,8 +27,8 @@ export default async function ProfilePage() {
   });
 
   return (
-    <ProfileForm 
-      session={session} 
+    <ProfileForm
+      session={session}
       singlePlayerRanking={singlePlayerRank ? { rank: singlePlayerRank.rank, points: singlePlayerRank.score } : { rank: 0, points: 0 }}
       doublePlayerRanking={doublePlayerRank ? { rank: doublePlayerRank.rank, points: doublePlayerRank.score } : { rank: 0, points: 0 }}
     />

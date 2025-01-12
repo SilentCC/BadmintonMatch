@@ -8,6 +8,7 @@ import { rankRouter } from './rank';
 import { playerStatsRouter } from "./playerStats";
 import { yearStarsRouter } from './yearstars';
 import { matchRouter } from "./match";
+import { resetPasswordRouter } from './reset-password';
 
 export const appRouter = router({
   healthcheck: publicProcedure.query(() => 'yay!'),
@@ -17,6 +18,7 @@ export const appRouter = router({
   playerStats: playerStatsRouter,
   yearStars: yearStarsRouter,
   match: matchRouter,
+  resetPassword: resetPasswordRouter,
 });
 
 export const createCaller = createCallerFactory(appRouter);
