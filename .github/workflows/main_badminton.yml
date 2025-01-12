@@ -1,7 +1,12 @@
 name: Testing
 env:
   AZURE_WEBAPP_NAME: badmintonmatch
-on: [push]
+on:
+  push:
+    branches:
+      - "**" 
+    tags-ignore: 
+      - "**"
 jobs:
   e2e:
     name: 'Build + E2E tests'
