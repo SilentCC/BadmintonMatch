@@ -1,47 +1,45 @@
-import { auth } from "~/auth";
+import { auth } from "../../auth";
 import { redirect } from "next/navigation";
-import { prisma } from "~/server/prisma";
-import Link from "next/link";
-import { Prisma } from "@prisma/client";
-import MatchCard from "../../components/MatchView";
+import { prisma } from "../../server/prisma";
+import MatchCard from '../../components/MatchView';
+import React from 'react'
+import { MatchWithRelations } from '../../components/MatchView';
 
-type MatchWithRelations = Prisma.MatchGetPayload<{
-  include: {
-    player1: true,
-    player2: true,
-    partnership1: {
-      include: {
-        player1: true,
-        player2: true
-      }
-    },
-    partnership2: {
-      include: {
-        player1: true,
-        player2: true
-      }
-    },
-    rounds: true
-  }
-}>;
-
-export default async function MatchesPage() {
+export default async function MyMatchesPage() {
   const session = await auth();
-  if (!session) {
+  if (!session?.user) {
     redirect("/login");
   }
 
-  const isAdmin = session.user.name === 'yongkang';
-
-  // Get matches from the last month
-  const twoWeeksAgo = new Date();
-  twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+  // Get matches from the last month where the user is involved
+  const oneMonthAgo = new Date();
+  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
 
   const matches: MatchWithRelations[] = await prisma.match.findMany({
     where: {
       createdAt: {
-        gte: twoWeeksAgo
-      }
+        gte: oneMonthAgo
+      },
+      OR: [
+        { player1Id: session.user.id },
+        { player2Id: session.user.id },
+        {
+          partnership1: {
+            OR: [
+              { player1Id: session.user.id },
+              { player2Id: session.user.id }
+            ]
+          }
+        },
+        {
+          partnership2: {
+            OR: [
+              { player1Id: session.user.id },
+              { player2Id: session.user.id }
+            ]
+          }
+        }
+      ]
     },
     include: {
       player1: true,
@@ -65,20 +63,15 @@ export default async function MatchesPage() {
     }
   });
 
-  // Separate matches by type
+  const isAdmin = session?.user?.name === 'yongkang'
+
   const doublesMatches = matches.filter(match => match.type === 'DOUBLES');
   const singlesMatches = matches.filter(match => match.type === 'SINGLES');
 
-  return (
+  return(
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Matches</h1>
-        <Link
-          href="/matches/create"
-          className="btn btn-primary"
-        >
-          Create New Match
-        </Link>
       </div>
 
       {/* Doubles Matches */}
@@ -109,7 +102,7 @@ export default async function MatchesPage() {
         <div className="text-center text-gray-500 py-8">
           No matches found in the last month
         </div>
-      )}
-    </div>
-  );
+      )};
+      </div>
+    );
 }

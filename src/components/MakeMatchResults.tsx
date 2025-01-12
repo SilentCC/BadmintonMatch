@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { Match, User, Partnership } from "@prisma/client";
-import MatchView from './MatchView'
+import MakeMatchView from './MakeMatchView'
 
 interface MatchWithRelations extends Match {
   player1?: User;
@@ -87,7 +87,7 @@ export default function MatchResults({ matches }: MatchResultsProps) {
               exit={{ opacity: 0, y: -20 }}
               transition={{ delay: index * 0.1 }}
             >
-              <MatchView match={convertToMatchWithRelations(match)} />
+              <MakeMatchView match={convertToMatchWithRelations(match)} />
             </motion.div>
           ))}
         </AnimatePresence>

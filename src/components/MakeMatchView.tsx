@@ -1,89 +1,35 @@
-'use server'
-
-import React from 'react'
+import { Match, User, Partnership } from "@prisma/client";
 import Link from "next/link";
-import { X } from "lucide-react";
-import { auth } from "../auth";
-import { prisma } from "../server/prisma";
-import { revalidatePath } from "next/cache";
-import { Prisma } from "@prisma/client";
 
-export type MatchWithRelations = Prisma.MatchGetPayload<{
-  include: {
-    player1: true,
-    player2: true,
-    partnership1: {
-      include: {
-        player1: true,
-        player2: true
-      }
-    },
-    partnership2: {
-      include: {
-        player1: true,
-        player2: true
-      }
-    },
-    rounds: true
-  }
-}>;
-
-async function deleteMatch(matchId: string) {
-  'use server'
-
-  const session = await auth()
-  if (session?.user?.name !== 'yongkang') {
-    throw new Error('Unauthorized')
-  }
-
-  try {
-    await prisma.match.delete({
-      where: { id: matchId }
-    })
-    revalidatePath('/matches')
-    return { success: true }
-  } catch (error) {
-    return { success: false, error: (error as Error).message }
-  }
+interface MatchWithRelations extends Match {
+  player1?: User;
+  player2?: User;
+  partnership1?: Partnership & {
+    player1: User;
+    player2: User;
+  };
+  partnership2?: Partnership & {
+    player1: User;
+    player2: User;
+  };
+  rounds?: { id: string }[];
 }
 
-interface MatchCardProps {
-  match: MatchWithRelations;
-  isAdmin?: boolean;
-}
-
-export default async function MatchCard({ match, isAdmin = false }: MatchCardProps) {
+export default function MakeMatchView({ match }: { match: MatchWithRelations }) {
   const defaultAvatar = 'https://cs110032000d3024da4.blob.core.windows.net/avatars/badmintonplayer.png';
-
   return (
     <div
       key={match.id}
-      className="relative bg-white shadow-md rounded-lg p-4 hover:shadow-lg transition-shadow
+      className={`bg-white shadow-md rounded-lg p-4 hover:shadow-lg transition-shadow
         ${match.closed
           ? 'bg-gray-100 opacity-75'
           : (match.type === 'DOUBLES' || match.type === 'SINGLES')
             ? 'border border-blue-100 bg-blue-50/10 transform hover:scale-105 active:scale-100'
             : ''
-        }"
+        }`}
     >
-      {isAdmin && (
-        <form action={async () => {
-          'use server'
-          await deleteMatch(match.id)
-        }}>
-          <button
-            type="submit"
-            className="btn btn-ghost btn-sm btn-circle absolute right-2 top-2 z-10 hover:bg-red-100"
-          >
-            <X size={16} />
-          </button>
-        </form>
-      )}
       <div className="flex justify-between items-center mb-2">
-        <div className="flex items-center gap-4">
-          <span className="text-sm uppercase font-medium text-gray-600">
-            {match.type}
-          </span>
+        <div className="flex items-center gap-2">
           <span className="text-sm text-gray-500">
             {new Date(match.createdAt).toLocaleDateString()}
           </span>
@@ -93,6 +39,9 @@ export default async function MatchCard({ match, isAdmin = false }: MatchCardPro
             <span className="badge badge-primary badge-outline">Open</span>
           )}
         </div>
+        <span className="text-sm uppercase text-gray-600">
+          {match.type}
+        </span>
       </div>
 
       {match.type === 'SINGLES' ? (
@@ -218,9 +167,8 @@ export default async function MatchCard({ match, isAdmin = false }: MatchCardPro
           </div>
         </div>
       )}
-
       <div className="mt-2 text-sm text-gray-600">
-        {match.rounds.length > 0 ? (
+        {match.rounds && match.rounds.length > 0 ? (
           `${match.rounds.length} round(s) played`
         ) : (
           <span className={match.closed ? "text-gray-600" : "text-yellow-600"}>
