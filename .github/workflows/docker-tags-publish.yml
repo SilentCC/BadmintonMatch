@@ -12,7 +12,19 @@ on:
 
 jobs:
  e2e:
-    name: 'Build + Publish image '
+    name: 'Build + Publish image'
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_DATABASE: next-prisma-starter-new
+          POSTGRES_USER: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+    env:
+      NODE_ENV: test
+      NEXTAUTH_SECRET: supersecret
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
