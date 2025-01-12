@@ -6,9 +6,9 @@ import bcrypt from 'bcryptjs';
 import { TRPCError } from '@trpc/server';
 
 // Initialize Azure Communication Service Email Client
-const emailClient = new EmailClient(process.env.AZURE_COMMUNICATION_CONNECTION_STRING!);
 
 export const resetPasswordRouter = router({
+
   sendResetLink: publicProcedure
     .input(z.object({ email: z.string().email() }))
     .mutation(async ({ input }) => {
@@ -58,6 +58,7 @@ export const resetPasswordRouter = router({
           }
         };
 
+        const emailClient = new EmailClient(process.env.AZURE_COMMUNICATION_CONNECTION_STRING!);
         const poller = await emailClient.beginSend(message);
         await poller.pollUntilDone();
         return { success: true };
