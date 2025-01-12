@@ -24,14 +24,14 @@ type Ranking = {
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
-export default function ProfileForm({ 
-  session, 
-  singlePlayerRanking, 
-  doublePlayerRanking 
-}: { 
-  session: Session, 
-  singlePlayerRanking: Ranking, 
-  doublePlayerRanking: Ranking 
+export default function ProfileForm({
+  session,
+  singlePlayerRanking,
+  doublePlayerRanking
+}: {
+  session: Session,
+  singlePlayerRanking: Ranking,
+  doublePlayerRanking: Ranking
 }) {
   const [nickname, setNickname] = useState(session?.user?.nickname ?? session?.user?.name ?? '');
   const [currentPassword, setCurrentPassword] = useState('');
@@ -40,6 +40,8 @@ export default function ProfileForm({
   const [avatarPreview, setAvatarPreview] = useState<string | null>(session?.user?.image ?? null);
   const [isAvatarUploading, setIsAvatarUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [email, setEmail] = useState(session?.user?.email ?? '');
+  const [isLoading, setIsLoading] = useState(false);
 
   const nicknameUpdateMutation = trpc.user.updateNickname.useMutation({
     onSuccess: () => {
@@ -62,9 +64,21 @@ export default function ProfileForm({
     }
   });
 
+  const emailUpdateMutation = trpc.user.updateEmail.useMutation({
+    onSuccess: () => {
+      toast.success('Email updated successfully');
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+    onSettled: () => {
+      setIsLoading(false);
+    }
+  });
+
   const handleNicknameUpdate = () => {
     if (!session?.user?.id) return;
-    
+
     nicknameUpdateMutation.mutate({
       userId: session.user.id,
       nickname
@@ -83,6 +97,15 @@ export default function ProfileForm({
       userId: session.user.id,
       currentPassword,
       newPassword
+    });
+  };
+
+  const handleEmailUpdate = () => {
+    if (!session?.user?.id) return;
+
+    emailUpdateMutation.mutate({
+      userId: session.user.id,
+      email
     });
   };
 
@@ -129,7 +152,7 @@ export default function ProfileForm({
 
       // Use server action to upload avatar
       const result = await uploadAvatar(formData);
-      
+
       if (result.success) {
         toast.success('Avatar updated successfully');
         // Update the avatar preview with the new avatar URL
@@ -147,7 +170,7 @@ export default function ProfileForm({
   };
 
   // Check if the user is from a third-party provider
-  const isThirdPartyProvider = session?.user?.email && 
+  const isThirdPartyProvider = session?.user?.email &&
     ['github', 'google', 'twitter'].includes(session.user.provider ?? '');
 
   return (
@@ -180,38 +203,50 @@ export default function ProfileForm({
               <label className="label">
                 <span className="label-text">Name</span>
               </label>
-              <input 
-                type="text" 
-                value={session.user.name ?? ''} 
-                className="input input-bordered w-full" 
-                disabled 
+              <input
+                type="text"
+                value={session.user.name ?? ''}
+                className="input input-bordered w-full"
+                disabled
               />
             </div>
             <div className="form-control w-full">
               <label className="label">
                 <span className="label-text">Email</span>
               </label>
-              <input 
-                type="email" 
-                value={session.user.email ?? ''} 
-                className="input input-bordered w-full" 
-                disabled 
-              />
+              <div className="flex items-center">
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="input input-bordered w-full"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={handleEmailUpdate}
+                  className="btn btn-primary ml-2"
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Updating...' : 'Update'}
+                </button>
+              </div>
             </div>
             <div className="form-control w-full">
               <label className="label">
                 <span className="label-text">Nickname (Optional)</span>
               </label>
               <div className="flex items-center space-x-2">
-                <input 
-                  type="text" 
-                  placeholder="Enter your nickname" 
-                  value={nickname} 
+                <input
+                  type="text"
+                  placeholder="Enter your nickname"
+                  value={nickname}
                   onChange={(e) => setNickname(e.target.value)}
-                  className="input input-bordered w-full" 
+                  className="input input-bordered w-full"
                 />
-                <button 
-                  onClick={handleNicknameUpdate} 
+                <button
+                  onClick={handleNicknameUpdate}
                   className="btn btn-primary"
                 >
                   Update
@@ -226,12 +261,12 @@ export default function ProfileForm({
                 <div className="avatar group relative">
                   {avatarPreview ? (
                     <div className="w-32 h-32 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 overflow-hidden">
-                      <img 
-                        src={avatarPreview} 
-                        alt="Avatar" 
-                        width={128} 
-                        height={128} 
-                        className="w-full h-full object-cover" 
+                      <img
+                        src={avatarPreview}
+                        alt="Avatar"
+                        width={128}
+                        height={128}
+                        className="w-full h-full object-cover"
                       />
                       <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <span className="text-white text-sm">Change</span>
@@ -244,19 +279,19 @@ export default function ProfileForm({
                       </svg>
                     </div>
                   )}
-                  <input 
-                    type="file" 
-                    accept=".jpg, .jpeg, .png, .webp" 
-                    onChange={handleImageChange} 
-                    ref={fileInputRef} 
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                  <input
+                    type="file"
+                    accept=".jpg, .jpeg, .png, .webp"
+                    onChange={handleImageChange}
+                    ref={fileInputRef}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
                 </div>
-                
+
                 {avatarPreview && (
                   <div className="flex items-center space-x-2">
-                    <button 
-                      onClick={handleAvatarUpload} 
+                    <button
+                      onClick={handleAvatarUpload}
                       className="btn btn-primary btn-sm"
                       disabled={isAvatarUploading}
                     >
@@ -266,18 +301,18 @@ export default function ProfileForm({
                         'Upload Avatar'
                       )}
                     </button>
-                    <button 
+                    <button
                       onClick={() => {
                         setAvatarPreview(session?.user?.image ?? null);
                         if (fileInputRef.current) fileInputRef.current.value = '';
-                      }} 
+                      }}
                       className="btn btn-ghost btn-sm"
                     >
                       Cancel
                     </button>
                   </div>
                 )}
-                
+
                 <div className="text-sm text-base-content/70 text-center">
                   <p>JPG, PNG, or WEBP</p>
                   <p>Max 5MB</p>
@@ -296,41 +331,41 @@ export default function ProfileForm({
                 <label className="label">
                   <span className="label-text">Current Password</span>
                 </label>
-                <input 
-                  type="password" 
+                <input
+                  type="password"
                   placeholder="Enter current password"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="input input-bordered w-full" 
+                  className="input input-bordered w-full"
                 />
               </div>
               <div className="form-control w-full">
                 <label className="label">
                   <span className="label-text">New Password</span>
                 </label>
-                <input 
-                  type="password" 
+                <input
+                  type="password"
                   placeholder="Enter new password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="input input-bordered w-full" 
+                  className="input input-bordered w-full"
                 />
               </div>
               <div className="form-control w-full">
                 <label className="label">
                   <span className="label-text">Confirm New Password</span>
                 </label>
-                <input 
-                  type="password" 
+                <input
+                  type="password"
                   placeholder="Confirm new password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="input input-bordered w-full" 
+                  className="input input-bordered w-full"
                 />
               </div>
               <div className="form-control mt-4">
-                <button 
-                  onClick={handlePasswordUpdate} 
+                <button
+                  onClick={handlePasswordUpdate}
                   className="btn btn-primary"
                 >
                   Update Password
