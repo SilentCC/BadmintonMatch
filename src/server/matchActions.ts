@@ -548,7 +548,7 @@ export async function generateBalancedDoubleMatches(players: User[]): Promise<Do
   players.forEach(p => appearances.set(p.id, 0))
 
   const matches: DoubleMatch[] = []
-  const minMatches = Math.max(4, Math.ceil(players.length / 2))
+  const minMatches = Math.max(4, Math.ceil(players.length / 2) + 2)
   let attempts = 0
   const maxAttempts = 100 // Prevent infinite loop
 
