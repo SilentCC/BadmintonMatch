@@ -205,7 +205,7 @@ async function updatePlayerStats(matchId: string) {
   if (!match) return;
 
   // Calculate total matches, wins, losses for each player
-  const updateStats = async (userId: string, isWinner: boolean) => {
+  const updateStats = async (userId: string, winnerNumber: number, loserNumber: number) => {
     let playerStats = await prisma.playerStats.findUnique({
       where: { playerId: userId }
     });
@@ -222,9 +222,9 @@ async function updatePlayerStats(matchId: string) {
       });
     }
 
-    const totalMatches = playerStats.totalMatches + 1;
-    const wonMatches = playerStats.wonMatches + (isWinner ? 1 : 0);
-    const lostMatches = playerStats.lostMatches + (isWinner ? 0 : 1);
+    const totalMatches = playerStats.totalMatches + winnerNumber + loserNumber;
+    const wonMatches = playerStats.wonMatches + winnerNumber;
+    const lostMatches = playerStats.lostMatches + loserNumber;
     const winPercentage = Math.round((wonMatches / totalMatches) * 100);
 
     await prisma.playerStats.update({
@@ -238,25 +238,71 @@ async function updatePlayerStats(matchId: string) {
     });
   };
 
-  // Calculate winners based on total points
   if (match.type === 'SINGLES') {
-    const player1Points = match.rounds.reduce((sum, round) => sum + (round.player1Score ?? 0), 0);
-    const player2Points = match.rounds.reduce((sum, round) => sum + (round.player2Score ?? 0), 0);
+    let player1winns = 0;
+    let player1loses = 0;
+    let player2winns = 0;
+    let player2loses = 0;
 
-    await updateStats(match.player1Id ?? '', player1Points > player2Points);
-    await updateStats(match.player2Id ?? '', player2Points > player1Points);
+    for (const round of match.rounds)
+    {
+      if (round.player1Score && round.player2Score)
+      {
+        if (round.player1Score > round.player2Score)
+        {
+          player1winns++;
+          player2loses++;
+        }
+        else
+        {
+          player2winns++;
+          player1loses++;
+        }
+      }
+    }
+
+    await updateStats(match.player1Id ?? '', player1winns, player1loses);
+    await updateStats(match.player2Id ?? '', player2winns, player2loses);
   } else {
-    const team1Points = match.rounds.reduce((sum, round) => sum + (round.partnership1Score ?? 0), 0);
-    const team2Points = match.rounds.reduce((sum, round) => sum + (round.partnership2Score ?? 0), 0);
+
+    let partnership1player1winns = 0;
+    let partnership1player1loses = 0;
+    let partnership1player2winns = 0;
+    let partnership1player2loses = 0;
+    let partnership2player1winns = 0;
+    let partnership2player1loses = 0;
+    let partnership2player2winns = 0;
+    let partnership2player2loses = 0;
+
+    for (const round of match.rounds)
+    {
+      if (round.partnership1Score && round.partnership2Score)
+      {
+        if (round.partnership1Score > round.partnership2Score)
+        {
+          partnership1player1winns++;
+          partnership1player2winns++;
+          partnership2player1loses++;
+          partnership2player2loses++;
+        }
+        else
+        {
+          partnership2player1winns++;
+          partnership2player2winns++;
+          partnership1player1loses++;
+          partnership1player2loses++;
+        }
+      }
+    }
 
     if (match.partnership1?.player1Id && match.partnership1?.player2Id) {
-      await updateStats(match.partnership1.player1Id, team1Points > team2Points);
-      await updateStats(match.partnership1.player2Id, team1Points > team2Points);
+      await updateStats(match.partnership1.player1Id, partnership1player1winns, partnership1player1loses);
+      await updateStats(match.partnership1.player2Id, partnership1player2winns, partnership1player2loses);
     }
 
     if (match.partnership2?.player1Id && match.partnership2?.player2Id) {
-      await updateStats(match.partnership2.player1Id, team2Points > team1Points);
-      await updateStats(match.partnership2.player2Id, team2Points > team1Points);
+      await updateStats(match.partnership2.player1Id, partnership2player1winns, partnership2player1loses);
+      await updateStats(match.partnership2.player2Id, partnership2player2winns, partnership2player2loses);
     }
   }
 }
