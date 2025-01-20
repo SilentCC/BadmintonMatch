@@ -151,9 +151,15 @@ enum MatchType {
   DOUBLES
 }
 
+enum PointType{
+  POINTS
+  EATING
+}
+
 model Match {
   id             String       @id @default(cuid())
   type           MatchType
+  pointType      PointType    @default(EATING)
 
   // Singles match fields
   player1Id      String?
