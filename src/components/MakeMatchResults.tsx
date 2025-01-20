@@ -34,6 +34,7 @@ export default function MatchResults({ matches }: MatchResultsProps) {
   const convertToMatchWithRelations = (match: DoubleMatch): MatchWithRelations => ({
     id: 'preview',
     type: 'DOUBLES',
+    pointType: 'POINTS',
     player1Id: null,
     player2Id: null,
     partnership1Id: 'preview-p1',
