@@ -385,8 +385,16 @@ export async function updateMatchClosedStatus(matchId: string, isClosed: boolean
             player2points += res.playerBDelta;
           }
 
-          player1points = Math.max(player1points, player1rank.score ?? 0);
-          player2points = Math.max(player2points, player2rank.score ?? 0);
+          if(match?.pointType == 'POINTS')
+          {
+            player1points = Math.max(player1points, player1rank.score ?? 0);
+            player2points = Math.max(player2points, player2rank.score ?? 0);
+          }
+          else
+          {
+            player1points = Math.max(player1points, 0);
+            player2points = Math.max(player2points, 0);
+          }
 
           await updateSingleRank(match?.player1Id ?? '', player1points);
           await updateSingleRank(match?.player2Id ?? '', player2points);
@@ -490,10 +498,21 @@ export async function updateMatchClosedStatus(matchId: string, isClosed: boolean
               console.log("partnership2points",partnership2points);
           }
 
-          partnership1player1points = Math.max(partnership1player1points, partnership1player1rank.score ?? 0);
-          partnership1player2points = Math.max(partnership1player2points, partnership1player2rank.score ?? 0);
-          partnership2player1points = Math.max(partnership2player1points, partnership2player1rank.score ?? 0);
-          partnership2player2points = Math.max(partnership2player2points, partnership2player2rank.score ?? 0);
+
+          if (match?.pointType == 'POINTS')
+          {
+              partnership1player1points = Math.max(partnership1player1points, partnership1player1rank.score ?? 0);
+              partnership1player2points = Math.max(partnership1player2points, partnership1player2rank.score ?? 0);
+              partnership2player1points = Math.max(partnership2player1points, partnership2player1rank.score ?? 0);
+              partnership2player2points = Math.max(partnership2player2points, partnership2player2rank.score ?? 0);
+          }
+          else
+          {
+              partnership1player1points = Math.max(partnership1player1points, 0);
+              partnership1player2points = Math.max(partnership1player2points, 0);
+              partnership2player1points = Math.max(partnership2player1points, 0);
+              partnership2player2points = Math.max(partnership2player2points, 0);
+          }
 
           partnership1points = Math.max(partnership1points, 0);
           partnership2points = Math.max(partnership2points, 0);
