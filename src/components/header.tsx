@@ -2,6 +2,7 @@ import Link from 'next/link'
 import UserAvatar from './UserAvatar'
 
 export default function Header() {
+
   return (
     <div className="navbar bg-slate-800 text-white flex justify-between relative z-50">
       <div className="navbar-start">
@@ -28,6 +29,11 @@ export default function Header() {
               </Link>
             </li>
             <li>
+              <Link href="/match-maker" className="text-white hover:bg-slate-700">
+                Generate Matches
+              </Link>
+            </li>
+            <li>
               <Link href="/year-stars" className="text-white hover:bg-slate-700">
                 年度之星
               </Link>
@@ -35,6 +41,11 @@ export default function Header() {
             <li>
               <Link href="/points-mall" className="text-white hover:bg-slate-700">
                 积分商城
+              </Link>
+            </li>
+            <li>
+              <Link href="/my-matches" className="text-white hover:bg-slate-700">
+                My Matches
               </Link>
             </li>
           </ul>
@@ -59,6 +70,11 @@ export default function Header() {
             </Link>
           </li>
           <li>
+            <Link href="/match-maker" className="text-white hover:bg-slate-700 rounded-lg">
+              Generate Matches
+            </Link>
+          </li>
+          <li>
             <Link href="/year-stars" className="text-white hover:bg-slate-700 rounded-lg">
               年度之星
             </Link>
@@ -66,6 +82,11 @@ export default function Header() {
           <li>
             <Link href="/points-mall" className="text-white hover:bg-slate-700 rounded-lg">
               积分商城
+            </Link>
+          </li>
+          <li>
+            <Link href="/my-matches" className="text-white hover:bg-slate-700 rounded-lg">
+              My Matches
             </Link>
           </li>
         </ul>
