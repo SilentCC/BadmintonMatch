@@ -74,6 +74,7 @@ async function saveMatches(matches: any[]) {
       await prisma.match.create({
         data: {
           type: 'DOUBLES',
+          pointType: 'POINTS',
           player1Id: null,
           player2Id: null,
           partnership1Id: partnership1.id,

@@ -58,13 +58,13 @@ export default async function MatchCard({ match, isAdmin = false }: MatchCardPro
   return (
     <div
       key={match.id}
-      className="relative bg-white shadow-md rounded-lg p-4 hover:shadow-lg transition-shadow
+      className={`relative bg-white shadow-md rounded-lg p-4 hover:shadow-lg transition-shadow
         ${match.closed
           ? 'bg-gray-100 opacity-75'
           : (match.type === 'DOUBLES' || match.type === 'SINGLES')
             ? 'border border-blue-100 bg-blue-50/10 transform hover:scale-105 active:scale-100'
             : ''
-        }"
+        }`}
     >
       {isAdmin && (
         <form action={async () => {
@@ -93,6 +93,10 @@ export default async function MatchCard({ match, isAdmin = false }: MatchCardPro
             <span className="badge badge-primary badge-outline">Open</span>
           )}
         </div>
+      </div>
+
+      <div className="text-sm text-gray-500 mb-2">
+        Point Type: {match.pointType === 'POINTS' ? '积分赛' : '吃分赛'}
       </div>
 
       {match.type === 'SINGLES' ? (
