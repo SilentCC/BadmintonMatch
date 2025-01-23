@@ -37,6 +37,7 @@ export default async function MatchesPage() {
   const twoWeeksAgo = new Date();
   twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
 
+  console.time("GetPartnerships");
   const matches: MatchWithRelations[] = await prisma.match.findMany({
     where: {
       createdAt: {
@@ -65,11 +66,14 @@ export default async function MatchesPage() {
     }
   });
 
+  console.timeEnd("GetPartnerships");
+
   // Separate matches by type
   const doublesMatches = matches.filter(match => match.type === 'DOUBLES');
   const singlesMatches = matches.filter(match => match.type === 'SINGLES');
 
-  return (
+  console.time("RenderHtml");
+  const html = (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Matches</h1>
@@ -112,4 +116,6 @@ export default async function MatchesPage() {
       )}
     </div>
   );
+  console.timeEnd("RenderHtml");
+  return html;
 }
