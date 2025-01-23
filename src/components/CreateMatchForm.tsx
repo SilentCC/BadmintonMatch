@@ -1,3 +1,5 @@
+'use server';
+
 import { prisma } from "~/server/prisma";
 import { MatchType } from "@prisma/client";
 import { redirect } from "next/navigation";
@@ -38,16 +40,12 @@ export default async function CreateMatchForm({
     const eventName = formData.get('eventName') as string | null;
     const location = formData.get('location') as string | null;
 
-    console.log(matchType)
-
     // Validate partnership creation for doubles
     if (matchType === 'DOUBLES') {
       // Check for new partnership 1 creation first
       const newPartnership1Player1 = formData.get('newPartnership1Player1') as string | null;
       const newPartnership1Player2 = formData.get('newPartnership1Player2') as string | null;
       const newPartnership1Nickname = formData.get('newPartnership1Nickname') as string | null;
-
-      console.log("fuck!")
 
       // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
       if ((newPartnership1Player1 && newPartnership1Player2) || partnership1Id) {
@@ -58,6 +56,7 @@ export default async function CreateMatchForm({
           try {
             // Find users before generating nickname
             const player1 = await prisma.user.findUnique({ where: { id: newPartnership1Player1 } });
+
             const player2 = await prisma.user.findUnique({ where: { id: newPartnership1Player2 } });
 
             // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
@@ -80,10 +79,11 @@ export default async function CreateMatchForm({
 
             await prisma.doubleRank.create({
               data: {
-                partnershipId: createdPartnership1.id,
-                score: 0
-              }
+              partnershipId: createdPartnership1.id,
+              score: 0
+            }
             });
+
             partnership1Id = createdPartnership1.id;
           } catch (error) {
             console.log(error);
@@ -113,6 +113,7 @@ export default async function CreateMatchForm({
           try {
             // Find users before generating nickname
             const player1 = await prisma.user.findUnique({ where: { id: newPartnership2Player1 } });
+
             const player2 = await prisma.user.findUnique({ where: { id: newPartnership2Player2 } });
 
             // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
@@ -127,11 +128,10 @@ export default async function CreateMatchForm({
 
             const createdPartnership2 = await prisma.partnership.create({
               data: {
-                player1Id: newPartnership2Player1,
-                player2Id: newPartnership2Player2,
-                nickname: partnership2Nickname ?? null,
-              }
-            });
+              player1Id: newPartnership2Player1,
+              player2Id: newPartnership2Player2,
+              nickname: partnership2Nickname ?? null,
+            }});
 
             await prisma.doubleRank.create({
               data: {
@@ -139,6 +139,7 @@ export default async function CreateMatchForm({
                 score: 0
               }
             });
+
             partnership2Id = createdPartnership2.id;
           } catch (error) {
             console.log(error);
@@ -168,8 +169,11 @@ export default async function CreateMatchForm({
     let player1IdValue = player1Id;
     let player2IdValue = player2Id;
     if (matchType === 'DOUBLES') {
+
       const partnership1 = await prisma.partnership.findUnique({ where: { id: partnership1Id ?? '' } });
+
       const partnership2 = await prisma.partnership.findUnique({ where: { id: partnership2Id ?? '' } });
+
       player1IdValue = partnership1?.player1Id ?? '';
       player2IdValue = partnership1?.player2Id ?? '';
       const player3IdValue = partnership2?.player1Id ?? '';
@@ -449,7 +453,7 @@ export default async function CreateMatchForm({
         </div>
       </div>
 
-      <CreateMatchFormClient />
+      <CreateMatchFormClient partnerships={partnerships} />
     </div>
   );
 }
