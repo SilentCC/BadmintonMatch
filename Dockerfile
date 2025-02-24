@@ -7,9 +7,8 @@ WORKDIR /base
 COPY . .
 
 # install pnpm and deps
-RUN npm install -g pnpm
+RUN npm install -g pnpm@9.6.0
 RUN pnpm install
-RUN pnpm approve-builds
 
 EXPOSE 3000
 CMD ["sh", "-c", "pnpm build && pnpm start"]
