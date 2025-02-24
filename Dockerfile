@@ -8,7 +8,7 @@ COPY . .
 
 # install pnpm and deps
 RUN npm install -g pnpm
-RUN pnpm install
+RUN pnpm install --shamefully-hoist
 
 EXPOSE 3000
 CMD ["sh", "-c", "pnpm build && pnpm start"]
