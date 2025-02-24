@@ -8,11 +8,7 @@ COPY . .
 
 # install pnpm and deps
 RUN npm install -g pnpm
-RUN pnpm install --shamefully-hoist
-
-
-RUN pnpm approve-builds --all
-RUN pnpm rebuild
+RUN pnpm install --config.auto-install-peers=true
 
 EXPOSE 3000
 CMD ["sh", "-c", "pnpm build && pnpm start"]
